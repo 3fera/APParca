@@ -103,8 +103,6 @@
    		}, "json");
    	}
 
-   	
-
     $('#home').live("pagecreate", function() {
 		if(navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(position){
@@ -116,7 +114,6 @@
 		
 	
 	});
-	
 	$('#login').live("pagehide", function() {
 		if(navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(position){
@@ -124,8 +121,6 @@
 			});
 		}
 		//comprobamos si hay algun estacionamiento activo con este usuario...
-		
-		
 		
 		checkRun();
 	
@@ -168,7 +163,6 @@
 		map.fitBounds(circle.getBounds());
 		
 		
-		//Zonas
 		
 		
 	}
@@ -289,34 +283,25 @@
         } 
         return pd + n.toString(); 
    } 
-   
    function alertDismissed() {
 	        alert("nooooo");
 	    }
-
-var notificacionEnviada=false;
-
-   function horaLimite(){
-		  // alerta cerrada
 	    
-		  /*if(!notificacionEnviada)
-		    navigator.notification.confirm(
-			    'Eres el ganador!',     // mensaje (message)
-			    alertDismissed,         // función 'callback' (alertCallback)
-			    'Game Over',            // titulo (title)
-			    'Cerrar'                // nombre del botón (buttonName)
-		    );*/
+   function horaLimite(){
+	   //alerta cerrada
+		/*navigator.notification.alert(
+		    'Eres el ganador!',     // mensaje (message)
+		    alertDismissed,         // función 'callback' (alertCallback)
+		    'Game Over',            // titulo (title)
+		    'Cerrar'                // nombre del botón (buttonName)
+		);*/
 	    
    }
    
    function updateCounter(precioHora, limite){
    		precioMin = (precioHora/60);
-   		
-   		limite=1;
-   		
    		if((time_segundos*60)>=limite){
    			horaLimite();
-   			notificacionEnviada=true;
 	   		precioT = limite*precioMin;
    		}else{
    			fix = time_segundos + 60;
@@ -334,7 +319,6 @@ var notificacionEnviada=false;
 	  	time_segundos++;
    }
    
-      
    function startCounter(precioHora, limite, tiempo){
    		time_segundos = tiempo;
    		updateCounter(precioHora, limite);
@@ -372,6 +356,10 @@ var notificacionEnviada=false;
         return fields;
     }
     
+    function getTicketJSON(estacionamientoId){
+	    return "estacionamientoId=" + estacionamientoId;
+    }
+    
    	function getAddVehiculoJSON(){
        	return "matricula=" + $("#matricula").val();
    	}
@@ -390,7 +378,6 @@ var notificacionEnviada=false;
     }
     
 </script>
-
 
 	  
 
@@ -627,11 +614,11 @@ var notificacionEnviada=false;
 	</div>	   
 	<!-- Ayuda -->
 	<div data-role="page" data-transition="none"  id="ayuda" class="ui-corner-all">	
-		<div data-role="header" data-theme="<?=$themeA?>" data-position="inline">
+		<div data-role="header" data-theme="a" data-position="inline">
 			<a href="#clickTools" data-icon="delete">Volver</a>
 			<h1>Ayuda</h1>
 		</div>
-		<div data-role="content" data-theme="<?=$themeD?>">
+		<div data-role="content" data-theme="d">
 			<div class="content-primary">
 				<div data-role="collapsible-set">
 					<div data-role="collapsible" data-theme="c" data-content-theme="d">
