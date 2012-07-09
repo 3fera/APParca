@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html class="ui-mobile">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Park and Click</title>
+
+        <meta name="layout" content="mobile">
+        
+         
+          <link href="style.css" rel="stylesheet" type="text/css">
+       
+	    <link rel="stylesheet" href="jquery.mobile-1.1.0.min.css">
+	<script src="jquery-1.7.1.min.js"></script>
+	<script src="cordova-1.8.1.js"></script>
+	<script src="jquery.mobile-1.1.0.min.js"></script>
+	
+	
+	
+	
+    
+ 		
+		
+	<script type="text/javascript" charset="utf-8">
+		var accuracy=0;
+		var lat=0;
+		var lng=0;
+		
+		// Wait for PhoneGap to load
+	    //
+	    
+	    
+	    document.addEventListener("deviceready", onDeviceReady, false);
+	   
+	    // PhoneGap is ready
+	    //
+	     function reloadEvents() {
+	           	   $("[data-json]").unbind('click');
+		           $("[data-json]").click(function() {
+		           		
+		           		var padre=$(this).parents('[data-role="dialog"]');
+		           		
+		           		if(padre.length>0) padre.dialog('close'); 
+		           		
+	           			var element=$(this)
+	           			var destino=$(element.attr("data-json-destino"));
+	           			var dataPost=eval(element.attr("data-json-data"))
+	           			var url='http://clients.3fera.com/aparca/json/'+element.attr("data-json")+'/';
+	           			
+	           			//alert(url+"\n"+dataPost)
+	           			
+	           			$.post(url, dataPost, function(data, textStatus) {
+	           				
+						  //data contains the JSON object
+						  //textStatus contains	 the status: success, error, etc
+						  	if(data.destino) {
+				  						destino=$(data.destino);
+				  						
+				  					}
+				  			else {
+					  			destino = null;
+					  			
+				  			}
+						  	
+						  	if(destino!=null) {
+						  	
+			  					destino.fadeOut(500, function () {
+				  					
+				  					
+			                		destino.html(data.html)
+			                		
+			                		if(data.html)	
+			                			destino.fadeIn();
+			                			
+			                		if(data.js)
+			                			eval(data.js);
+			                		
+			                		//alert("entra")	
+			                		
+			                		
+		                		
+		                		});
+		                	}
+		                	else {
+			                	if(data.js)
+			                		eval(data.js);
+			                	
+		                	}
+		                		
+		                		
+		                		
+		                	
+						  
+						}, "json");
+	           			
+	           		});    
+		           
+	           }
+
+	    
+	    function onDeviceReady() {
+		    
+		    alert("entramos")
+				
+		    
+	        navigator.geolocation.getCurrentPosition(onSuccess, onError);
+	         alert("pasamos la carga del mapa")
+	        
+			  	$(".btn-stop").fadeOut();
+			  	
+			    $(window).resize(function(){
+                	$("#layer-mapa").css("height", $(window).height() - parseInt($(".botones").css("height")) + 5)
+			
+                });
+			
+                $('#selectZonas').on("pagebeforeload", function() {
+                	
+	                $(this).dialog('close');
+	              });
+	              	
+	             reloadEvents();
+	        
+	    }
+	
+	    // onSuccess Geolocation
+	    //
+	    function onSuccess(position) {
+	    	
+	  
+	    	
+	    	var latlng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+			
+			lat=position.coords.latitude;
+			lng=position.coords.longitude;
+		
+			//accuracy=position.coords.accuracy + 150;
+		
+			
+			accuracy=position.coords.accuracy;
+			
+			
+			var myOptions = {
+				zoom: 16,
+				center: latlng,
+				mapTypeId: google.maps.MapTypeId.ROADMAP
+			};
+			
+			var map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+			
+			var marker = new google.maps.Marker({
+				position: latlng, 
+				map: map,
+			 	title: "Mi coche!"
+			});
+	    	
+	    	var circle = new google.maps.Circle({
+			    center: latlng,
+			    radius: accuracy,
+			    map: map, //your map,
+			    fillColor: 'blue', //color,
+			    fillOpacity: 0.2, //opacity from 0.0 to 1.0,
+			    strokeColor: 'blue', //stroke color,
+			    strokeOpacity: 1 //opacity from 0.0 to 1.0
+			});
+			
+			//set the zoom level to the circle's size
+			map.fitBounds(circle.getBounds());
+	    	
+	    }
+	
+	    // onError Callback receives a PositionError object
+	    //
+	    function onError(error) {
+	        alert('code: '    + error.code    + '\n' +
+	              'message: ' + error.message + '\n');
+	    }
+
+	</script>
+
+<script>
+	        
+	           var intervalUpdateGasto;
+	           
+	          	           	
+		        
+	           
+	           	function getCoordsJSON() {
+		           	
+		           	return "lat="+ lat +"&lng="+lng+"&ac="+ accuracy;
+		          
+		           	
+	           	}
+	           	function getCoordsJSONAndTarifa(tipoId) {
+		           	
+		           	return "lat="+ lat +"&lng="+lng+"&ac="+ accuracy+"&tipoId="+ tipoId;
+		          
+		           	
+	           	}
+	           	
+	           	function getPerfilJSON(){
+		           	var fields =  
+		           	"username=" + $("#usernamePerfil").val() 
+		           	+ "&email=" + $("#emailPerfil").val() 
+		           	+ "&oldPassword=" + $("#passwordPerfil").val() 
+		           	+ "&password=" + $("#newPasswordPerfil").val() 
+		           	+ "&password2=" + $("#newPassword2Perfil").val();
+		           	
+		           	return fields;
+	           	}
+	           	function getAddVehiculoJSON(){
+		           	return "matricula=" + $("#matricula").val();
+	           	}
+	           	function getLoginJSON(){
+		           	return "username=" + $("#username").val() + "&password=" + $("#username").val();
+	           	}
+	         
+		           	
+		        function emularClickPopup(element) {
+			       
+			      
+			       
+			        $("#emulClick").attr("href",element);
+			        $("#emulClick").click();
+			        
+		        }   	
+		           	
+	         
+	           	
+	   </script>
+	   <script>
+			/*Codigo para ajustar el mapa a la zona correcta*/
+			$(document).ready(function() {
+			 // $.mobile.changePage("#home");
+			  	
+			  	$(".btn-stop").fadeOut();
+			  	
+			    $(window).resize(function(){
+                	$("#layer-mapa").css("height", $(window).height() - parseInt($(".botones").css("height")) + 5)
+			
+                });
+			
+                $('#selectZonas').on("pagebeforeload", function() {
+                	alert($(this))
+	                $(this).dialog('close');
+	              });
+			
+			});
+		
+		</script>
+
+</head>
+<body class="ui-mobile-viewport ui-overlay-c">
+<body>
+		<div data-role="page" id="login">
+			
+			<div id="logginDiv" data-role="dialog" data-overlay-theme="a" data-theme="a" class="ui-corner-all"
+			style="width:50%;">
+				<div style="padding:10px 20px;">
+					<h3>Acceso</h3>
+					<label for="un" class="ui-hidden-accessible">Usuario:</label>
+					<input type="text" name="username" id="username" value="" placeholder="usuario" data-theme="a" />
+					
+					<label for="pw" class="ui-hidden-accessible">Password:</label>
+					<input type="password" name="password" id="password" value="" placeholder="password" data-theme="a" />
+					<button type="submit" data-theme="b" data-json="login" data-json-data="getLoginJSON()" class="ui-btn">Login</button>
+				</div>
+			</div>
+			
+			<script>
+				$('#login').live('pageshow', function () {
+					//Check session status
+                	$.post("http://clients.3fera.com/aparca/json/sessionStatus/", "1", function(data, textStatus) {
+	           			if(data.js)
+			            	eval(data.js);
+	           		}, "json");
+				});	
+			</script>
+		</div>
+
+		<div data-role="page" id="home" style="height: 100%;" class="details-page" data-prefetch>
+	        
+	
+	        <div data-role="content" class="sin-padding" style="height: 90%;" id="layer-mapa" data-theme="a">
+	            <div id="map_content">
+	                <div id="map_canvas" style="height: 100%;">Placeholder in case of loading failure</div>
+	            </div>
+	        </div>
+	        
+	         <div class="info" id="info">
+		         
+		              
+	         </div>
+	         
+	    	 <div class="botones" data-theme="a">
+	           	<a href="" data-json="clickEuros" data-json-destino="#info" class="btn-euros"></a>
+	            <a href="" data-json="clickSearchZonas" data-json-data="getCoordsJSON()" data-json-destino="#info" class="btn-run"></a>
+	            <a href="" data-json="clickStop" data-json-destino="#info" class="btn-stop"></a>
+	            <a href="#clickTools" data-rel="page" data-shadow="true" class="btn-tools" data-transition="pop" data-corners="true"></a>
+	         </div> 
+	         
+	         
+	   
+			   
+	        	   
+	  
+	           
+
+
+	</div><!--/content-primary -->
+
+
+		
+		<!-- Seleccionar zonas -->
+	   <div data-role="page" id="selectZonas">
+				<div data-role="header" data-theme="a"><h1>Seleccione la zona donde ha estacionado</h1></div>
+				<div data-role="content" data-theme="a">
+					Hemos encontrado varias zonas donde ha aparcado. Por favor, seleccione el tipo de zona donde está estacionado
+					<div id="zonasBotones">
+						<a href="#" data-json="clickValidarRun" data-json-data="getCoordsJSONAndTarifa(1)" data-role="button" data-theme="e">Verde</a>
+						<a href="#" data-json="clickValidarRun" data-json-data="getCoordsJSONAndTarifa(2)" data-role="button" data-theme="b">Azul</a>
+					</div>
+					
+				</div>	   
+	   </div>
+		 <!-- Sin zonas -->
+	   <div data-role="page" id="sinZonas" class="ui-corner-all">
+				<div data-role="header" data-theme="b"><h1>Sin zonas</h1></div>
+				<div data-role="content" data-theme="a">
+					No hemos encontrado ninguna zona cerca de su posición. Por favor, revise su configuración GPS si es incorrecto.
+					<div id="zonasBotones">
+						<a href="#" data-role="button" data-theme="b" data-rel="back">Aceptar</a>
+					</div>
+					
+				</div>	   
+	   </div>
+	  	<!-- ConfirmarRun -->
+	   <div data-role="page"" id="confirmarRun" class="ui-corner-all">
+				<div data-role="header" data-theme="b"><h1>Confirmar</h1></div>
+				<div data-role="content" data-theme="a">
+					<div id="confirmarRun_html">
+						
+					</div>
+					<a href="#" data-json="clickRun" data-json-data="getCoordsJSONAndTarifa()" data-role="button" data-theme="e">Aceptar</a>
+			
+				</div>	   
+	   </div>
+	   
+	    <!-- ConfirmarRun -->
+	   <div data-role="page" id="confirmarStop" class="ui-corner-all">
+				<div data-role="header" data-theme="b"><h1>dialogo con colores configurados</h1></div>
+				<div data-role="content" data-theme="a">
+					Este es un cuadro de dialogo configurado que esta dentro del mismo HTML del enlace
+					<a href="#" data-role="button" data-theme="e" data-rel="back">Aceptar</a>
+				</div>	   
+	   </div>
+	   
+	   
+	    <!-- page-perfil -->
+	   <div data-role="page" id="page-perfil" class="ui-corner-all">
+				<div data-role="header" data-theme="b"><h1>dialogo con colores configurados</h1></div>
+				<div data-role="content" data-theme="a">
+					Este es un cuadro de dialogo configurado que esta dentro del mismo HTML del enlace
+					<a href="#" data-role="button" data-theme="e" data-rel="back">Aceptar</a>
+				</div>	   
+	   </div>
+	   
+	    <!-- page-gestionPagos -->
+	   <div data-role="page" id="page-gestionPagos" class="ui-corner-all">
+				<div data-role="header" data-theme="b"><h1>dialogo con colores configurados</h1></div>
+				<div data-role="content" data-theme="a">
+					Este es un cuadro de dialogo configurado que esta dentro del mismo HTML del enlace
+					<a href="#" data-role="button" data-theme="e" data-rel="back">Aceptar</a>
+				</div>	   
+	   </div>
+	   
+	    <!-- page-ayuda -->
+	   <div data-role="page" id="page-ayuda" class="ui-corner-all">
+				<div data-role="header" data-theme="b"><h1>dialogo con colores configurados</h1></div>
+				<div data-role="content" data-theme="a">
+					Este es un cuadro de dialogo configurado que esta dentro del mismo HTML del enlace
+					<a href="#" data-role="button" data-theme="e" data-rel="back">Aceptar</a>
+				</div>	   
+	   </div>
+	   
+	    <!-- page-gestionVehiculos -->
+	   <div data-role="page" id="page-gestionVehiculos" class="ui-corner-all">
+				<div data-role="header" data-theme="b"><h1>dialogo con colores configurados</h1></div>
+				<div data-role="content" data-theme="a">
+					Este es un cuadro de dialogo configurado que esta dentro del mismo HTML del enlace
+					<a href="#" data-role="button" data-theme="e" data-rel="back">Aceptar</a>
+				</div>	   
+	   </div>
+	   
+	   
+	   
+	   <!-- ConfirmarRun -->
+	   <div data-role="page" id="clickTools" class="ui-corner-all">
+				
+				<div data-role="header" data-theme="b" data-position="inline">
+					<a href="#home" data-icon="delete">Volver</a>
+					<h1>Herramientas</h1>
+					
+				</div>
+				<div data-role="content" data-theme="a">
+					<div class="content-primary">	
+						<ul data-role="listview">
+							<li>
+								<a href="#gestionVehiculos" class="ui-link-inherit">
+									<h3>Gestión de vehículos</h3>
+									<p>Desde este apartado podrás dar de alta y baja tu flota de vehículos.</p>
+								</a>
+							
+							</li>
+							<li>
+								<a href="#perfil" class="ui-link-inherit">
+									<h3>Perfil</h3>
+									<p>Apartado desde el que podrás cambiar tus datos de acceso a la app.</p>
+								</a>
+							</li>
+							<li>
+								<a href="#gestionPagos" class="ui-link-inherit">
+									<h3>Gestión de pagos</h3>
+									<p>Desde este aparado podras gestionar las formas de pago.</p>
+								</a>
+							</li>
+							<li>
+								<a href="#ayuda" class="ui-link-inherit">
+									<h3>Ayuda</h3>
+									<p>Toda la ayuda y consejos que puedas necesitar los encontraras en este apartado.</p>
+								</a>
+							</li>
+
+						</ul>
+						</div>
+				</div>	   
+	   </div>
+	   
+	   
+	   
+	    <div data-role="page" id="gestionVehiculos" class="ui-corner-all">	
+			<div data-role="header" data-theme="b" data-position="inline">
+				<a href="#clickTools" data-icon="delete">Volver</a>
+				<h1>Gestión de vehículos</h1>
+			</div>
+			<div data-role="content" data-theme="a">
+				<div class="content-primary">	
+					
+					<div>
+						Matricula
+						<input type="text" name="matricula" id="matricula">
+						<button type="submit" data-json="addVehiculo" data-json-data="getAddVehiculoJSON()" class="ui-btn">Añadir</button>
+					</div>
+					<br>
+					<ul data-role="listview" id="listaVehiculos">
+					</ul>
+				</div>
+			</div>
+			<script>
+				$('#gestionVehiculos').live('pageshow', function () {
+                	//Get vehicles
+                	$.post("http://clients.3fera.com/aparca/json/getVehiculos/", "1", function(data, textStatus) {
+	           			if(data.js)
+			            	eval(data.js);
+			            	$('#listaVehiculos').listview('refresh') 
+	           		}, "json");
+	           		
+	           		
+	           		
+				});	
+			</script>
+	   </div>
+	   
+	   <div data-role="page" id="gestionPagos" class="ui-corner-all">	
+			<div data-role="header" data-theme="b" data-position="inline">
+				<a href="#clickTools" data-icon="delete">Volver</a>
+				<h1>Gestión de pagos</h1>
+			</div>
+			<div data-role="content" data-theme="a">
+				<div class="content-primary">	
+					<ul data-role="listview" id="listaPagos">
+						
+					</ul>
+				</div>
+			</div>
+			<script>
+				$('#gestionPagos').live('pageshow', function () {
+                	//Get vehicles
+                	$.post("http://clients.3fera.com/aparca/json/getPagos/", "1", function(data, textStatus) {
+	           			if(data.js)
+			            	eval(data.js);
+			            	$('#listaPagos').listview('refresh') 
+	           		}, "json");
+				});	
+			</script>
+	   </div>
+	   
+	   <div data-role="page" id="perfil" class="ui-corner-all">	
+			<div data-role="header" data-theme="b" data-position="inline">
+				<a href="#clickTools" data-icon="delete">Volver</a>
+				<h1>Perfil</h1>
+			</div>
+			<div data-role="content" data-theme="a">
+				<div class="content-primary">	
+					Usuario
+					<input type="text" name="username" id="usernamePerfil">
+					Email
+					<input type="text" name="email" id="emailPerfil">
+					Password actual
+					<input type="password" name="password" id="passwordPerfil">
+					Nuevo password
+					<input type="password" name="newPassword" id="newPasswordPerfil">
+					Repite el nuevo password
+					<input type="password" name="newPassword2" id="newPassword2Perfil">
+					<button type="submit" data-json="guardarPerfil" data-json-data="getPerfilJSON()" class="ui-btn">Guardar</button>
+				</div>
+			</div>
+			<script>
+				$('#perfil').live('pageshow', function () {
+                	//Get vehicles
+                	$.post("http://clients.3fera.com/aparca/json/getPerfil/", "1", function(data, textStatus) {
+	           			if(data.js)
+			            	eval(data.js);
+	           		}, "json");
+				});	
+			</script>
+	   </div>
+	   
+	   
+	   <!-- ConfirmarRun -->
+	   <div data-role="page" id="errorAlert" class="ui-corner-all">
+			<div data-role="header" data-theme="b">
+				<h1 id="errorAlert_header">dialogo con colores configurados</h1>
+			</div>
+			<div data-role="content" data-theme="a">
+				<div id="errorAlert_html"></div>
+			</div>	   
+	   </div>
+
+		<a data-rel="dialog" id="emulClick" href="#" ></a>		
+	    <a href="" data-json="updateGasto" id="updateGasto" style="display:none"></a>
+
+</body>
+
+</html>
