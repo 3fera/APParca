@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget xmlns		= "http://www.w3.org/ns/widgets"
+	xmlns:gap	= "http://phonegap.com/ns/1.0"
+	id		= "com.tresfera.apparca"
+	version 	= "1.0.0">
+
+	<name>APParca</name>
+
+	<description>
+		Aplicación para estacionar en zonas de pago.
+	</description>
+
+	<author href="http://www.3fera.com"
+		email="info@3fera.com">
+		3fera
+	</author>
+
+
+	<feature name="http://api.phonegap.com/1.0/geolocation"/>
+	<feature name="http://api.phonegap.com/1.0/network"/>
+	<feature name="http://api.phonegap.com/1.0/notification"/>
+
+	<gap:splash src="assets/splash/android/splash_320.png" />
+
+	<icon src="assets/icons/android/ldpi.png" gap:platform="android" gap:density="ldpi" />
+	<icon src="assets/icons/android/mdpi.png" gap:platform="android" gap:density="mdpi" />
+	<icon src="assets/icons/android/hdpi.png" gap:platform="android" gap:density="hdpi" />
+	
+	<gap:splash src="assets/splash/android/splash_320.png"  gap:platform="android" gap:density="ldpi" />
+	<gap:splash src="assets/splash/android/splash_640.png"  gap:platform="android" gap:density="mdpi" />
+	<gap:splash src="assets/splash/android/splash_768.png"  gap:platform="android" gap:density="hdpi" />
+	
+	<preference name="android-minSdkVersion" value="7" />
+
+	<preference name="orientation" value="portrait" />
+</widget> 
