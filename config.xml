@@ -22,13 +22,10 @@
 
 	<preference name="android-installLocation" value="auto" />
 
-	<icon src="icons/android/ldpi.png" gap:platform="android" gap:density="ldpi" />
-	<icon src="icons/android/mdpi.png" gap:platform="android" gap:density="mdpi" />
-	<icon src="icons/android/hdpi.png" gap:platform="android" gap:density="hdpi" />
+	<icon src="assets/icons/android/ldpi.png" gap:platform="android" gap:density="ldpi" />
+	<icon src="assets/icons/android/mdpi.png" gap:platform="android" gap:density="mdpi" />
+	<icon src="assets/icons/android/hdpi.png" gap:platform="android" gap:density="hdpi" />
 
-	<gap:splash src="splash/android/ldpi.png" gap:platform="android" gap:density="ldpi" />
-	<gap:splash src="splash/android/mdpi.png" gap:platform="android" gap:density="mdpi" />
-	<gap:splash src="splash/android/hdpi.png" gap:platform="android" gap:density="hdpi" />
 
 	<preference name="orientation" value="portrait" />
 </widget> 

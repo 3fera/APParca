@@ -26,7 +26,7 @@ html, body {
 
 #login {
 	
-	background: url(bgLoading.jpg) center center;
+	background: url(../images/bgLoading.jpg) center center;
 	
 }
 
@@ -37,7 +37,7 @@ html, body {
 }
 .botones {
 	
-	background: url(bg_botonera.png) repeat-x;
+	background: url(../images/bg_botonera.png) repeat-x;
 height: 106px;
 bottom: 0;
 position: absolute !important;
@@ -49,7 +49,7 @@ a.btn-run,
 a.btn-stop {
 	
 	
-	background: url(boton_start.png) no-repeat;
+	background: url(../images/boton_start.png) no-repeat;
 	width: 118px;
 	height: 118px;
 	position: absolute;
@@ -59,7 +59,7 @@ a.btn-stop {
 	
 }
 a.btn-stop {
-	background: url(boton_stop.png) no-repeat;
+	background: url(../images/boton_stop.png) no-repeat;
 	
 }
 a.btn-euros,
@@ -74,11 +74,11 @@ bottom: 5px;
 	
 }
 a.btn-euros {
-	background: url(boton_euro.png) no-repeat;
+	background: url(../images/boton_euro.png) no-repeat;
 	left: -160px;
 }
 a.btn-tools {
-	background: url(boton_tools.png) no-repeat;
+	background: url(../images/boton_tools.png) no-repeat;
 left: 68px;
 
 	
