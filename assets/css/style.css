@@ -222,3 +222,7 @@ font-weight: normal;
 	padding: 0;
 	margin: 8px 0;
 }
+
+.ui-page {
+    -webkit-backface-visibility: hidden;
+}
