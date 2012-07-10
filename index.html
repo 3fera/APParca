@@ -363,6 +363,11 @@
 	    return "vehiculoId=" + vehiculoId;
     }
     
+    function getTicketActualJSON(){
+    	t = time_segundos + 60;
+	    return "tiempoTotal=" + Math.floor(t/60);
+    }
+    
     function getTicketJSON(estacionamientoId){
 	    return "estacionamientoId=" + estacionamientoId;
     }
@@ -507,15 +512,13 @@
 	<!-- Home -->
 	<div data-role="page" data-transition="none"  id="home" style="height: 100%;" class="details-page" data-prefetch>
 		<div data-role="content" class="sin-padding" style="height: 90%;" id="layer-mapa" data-theme="a">
-            
             <div id="map_content">
-            	
-                <div id="map_canvas" style="height: 100%;">Cargando mapa</div>
+                <div id="map_canvas" style="height: 100%;"></div>
             </div>
         </div>
         <div class="info" id="info"></div>
 		<div class="botones" data-theme="a">
-			<a href="" data-json="clickEuros" data-json-destino="#info" class="btn-euros"></a>
+			<a href="" data-json="getTicket" data-json-data="getTicketActualJSON()" class="btn-euros"></a>
 			<a href="" data-json="clickSearchZonas" data-json-data="getCoordsJSON()" data-json-destino="#info" class="btn-run"></a>
 			<a href="#confirmarStop" class="btn-stop" data-rel="dialog"></a>
 			<a href="#clickTools" class="btn-tools" data-rel="page" data-shadow="true"  data-transition="pop" data-corners="true"></a>
@@ -607,7 +610,7 @@
 			<table width="100%">
 				<tr>
 					<td>
-						<a href="#" data-role="button" data-theme="a" data-rel="exit">Salir</a>
+						<a href="#" data-role="button" data-theme="a" data-rel="exit" onClick="navigator.app.exitApp()">Salir</a>
 					</td>
 					<td>
 						<a href="#" data-role="button" data-theme="b" data-rel="back">Volver</a>
@@ -622,6 +625,13 @@
 		<div data-role="header" data-theme="a"><h1>Ticket</h1></div>
 		<div data-role="content" data-theme="c">
 			<div class="content"></div>
+			<table width="100%">
+				<tr>
+					<td>
+						<a href="#" data-role="button" data-theme="a" data-rel="back">Cerrar</a>
+					</td>
+				</tr>
+			</table>
 		</div>	   
 	</div>
 	
@@ -840,7 +850,7 @@
 				</div>
 			</div>
 		</div>
-	</div>
+	</div> 
 	
 	<!-- Alerta -->
 	<div data-role="page" data-transition="none"  id="errorAlert" class="ui-corner-all">
