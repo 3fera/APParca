@@ -30,6 +30,7 @@
 	<gap:splash src="assets/splash/android/ldpi.jpg" gap:platform="android" gap:density="ldpi" />
 	<gap:splash src="assets/splash/android/mdpi.jpg" gap:platform="android" gap:density="mdpi" />
 	<gap:splash src="assets/splash/android/hdpi.jpg" gap:platform="android" gap:density="hdpi" />
+	<gap:splash src="assets/splash/android/xldpi.jpg" gap:platform="android" gap:density="xldpi" />
 	
 	<preference name="android-minSdkVersion" value="7" />
 
