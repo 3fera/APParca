@@ -31,7 +31,7 @@
 		onDeviceReady();	           		   	
    });
    // PhoneGap is ready
-   //   
+   //
    
    function onDeviceReady() {
    		//navigator.geolocation.getCurrentPosition(onSuccess, onError);
@@ -297,7 +297,7 @@
    
    function updateCounter(precioHora, limite){
    		precioMin = (precioHora/60);
-   		if((time_segundos*60)>=limite){
+   		if((time_segundos)>=limite*60){
    			horaLimite();
 	   		precioT = limite*precioMin;
    		}else{
@@ -353,6 +353,14 @@
         return fields;
     }
     
+    function getVehiculoJSON(vehiculoId){
+	    return "vehiculoId=" + vehiculoId;
+    }
+    
+    function getRemoveVehiculoJSON(vehiculoId){
+	    return "vehiculoId=" + vehiculoId;
+    }
+    
     function getTicketJSON(estacionamientoId){
 	    return "estacionamientoId=" + estacionamientoId;
     }
@@ -362,7 +370,8 @@
    	}
    	
    	function getRegistroJSON(){
-		return "username=" + $("#regUsuario").val() + "&password=" + $("#regPassword").val() + "&email=" + $("#regEmail").val();    	
+		return "username=" + $("#regUsuario").val() + "&password=" + $("#regPassword").val() + "&email=" + $("#regEmail").val() + "&matricula=" + $("#regMatricula").val() + 
+		"&tarjeta=" + $("#regTarjeta").val() + "&tarjetaMes=" + $("#regMes").val() + "&tarjetaAno=" + $("#regAno").val();
    	}
    	
    	function getLoginJSON(){
@@ -425,7 +434,6 @@
 		<div data-role="content" data-theme="c">
 			<div class="ui-body ui-body-d">
 				
-				
 				<div data-role="fieldcontain" class="ui-field-contain ui-body ui-br">
 					<label for="name-a" class="ui-input-text">Usuario:</label>
 					<input type="text" id="regUsuario" value="" placeholder="Usuario" data-theme="c" class="ui-input-text ui-body-a ui-corner-all ui-shadow-inset">
@@ -438,7 +446,49 @@
 					<label for="name-a" class="ui-input-text">Email:</label>
 					<input type="text" id="regEmail" value="" placeholder="Email" data-theme="c" class="ui-input-text ui-body-a ui-corner-all ui-shadow-inset">
 				</div>
-				
+				<div data-role="fieldcontain" class="ui-field-contain ui-body ui-br">
+					<label for="name-a" class="ui-input-text">Matrícula:</label>
+					<input type="text" id="regMatricula" value="" placeholder="Matrícula" data-theme="c" class="ui-input-text ui-body-a ui-corner-all ui-shadow-inset">
+				</div>
+				<div data-role="fieldcontain" class="ui-field-contain ui-body ui-br">
+					<label for="name-a" class="ui-input-text">Nº tarjeta de crédito:</label>
+					<input type="text" id="regTarjeta" value="" placeholder="Nº tarjeta de crédito" data-theme="c" class="ui-input-text ui-body-a ui-corner-all ui-shadow-inset">
+				</div>
+				<div data-role="fieldcontain" class="ui-field-contain ui-body ui-br">
+					<fieldset data-role="controlgroup">
+						<legend>Fecha caducidad</legend>
+						<label for="regMes">Mes</label>
+						<select name="regMes" id="regMes">
+					    	<option value="01">01</option>
+					    	<option value="02">02</option>
+					    	<option value="03">03</option>
+					    	<option value="04">04</option>
+					    	<option value="05">05</option>
+					    	<option value="06">06</option>
+					    	<option value="07">07</option>
+					    	<option value="08">08</option>
+					    	<option value="09">09</option>
+					    	<option value="10">10</option>
+					    	<option value="11">11</option>
+					    	<option value="12">12</option>
+					   </select>
+					   <label for="regAno">Año</label>
+					   <select name="regAno" id="regAno">
+					    	<option value="2012">2012</option>
+					    	<option value="2013">2013</option>
+					    	<option value="2014">2014</option>
+					    	<option value="2015">2015</option>
+					    	<option value="2016">2016</option>
+					    	<option value="2017">2017</option>
+					    	<option value="2018">2018</option>
+					    	<option value="2019">2019</option>
+					    	<option value="2020">2020</option>
+					    	<option value="2021">2021</option>
+					    	<option value="2022">2022</option>
+					   </select>
+					</fieldset>
+				</div>
+
 				<button type="submit" data-theme="b" data-json="registrar" data-json-data="getRegistroJSON()" class="ui-btn">Registrar</button>
 			</div>
 		</div>	   
@@ -534,10 +584,10 @@
 			<table width="100%">
 				<tr>
 					<td>
-						<a href="#" data-role="button" data-theme="a" data-inline="true" data-rel="back">No</a>
+						<a href="#" data-role="button" data-theme="a" data-rel="back">No</a>
 					</td>
 					<td>
-						<a href="#" data-role="button" data-theme="b" data-inline="true" data-json="clickStop" data-json-data="getCoordsJSONAndTarifa()">Si</a>
+						<a href="#" data-role="button" data-theme="b" data-json="clickStop" data-json-data="getCoordsJSONAndTarifa()">Si</a>
 					</td>
 				</tr>
 			</table>
@@ -555,10 +605,10 @@
 			<table width="100%">
 				<tr>
 					<td>
-						<a href="#" data-role="button" data-theme="a" data-inline="true" data-rel="exit">Salir</a>
+						<a href="#" data-role="button" data-theme="a" data-rel="exit">Salir</a>
 					</td>
 					<td>
-						<a href="#" data-role="button" data-theme="b" data-inline="true" data-rel="back">Volver</a>
+						<a href="#" data-role="button" data-theme="b" data-rel="back">Volver</a>
 					</td>
 				</tr>
 			</table>
@@ -569,9 +619,25 @@
 	<div data-role="dialog" data-transition="none"  style="z-index: 9999;position: relative;" id="showTiket" class="ui-corner-all">
 		<div data-role="header" data-theme="a"><h1>Resumen de estacionamiento</h1></div>
 		<div data-role="content" data-theme="c">
-			<div class="content">
-			¿Desea finalizar su aparcamiento?
-			</div>
+			<div class="content"></div>
+		</div>	   
+	</div>
+	
+	<!-- showVehiculo -->
+	<div data-role="dialog" data-transition="none"  style="z-index: 9999;position: relative;" id="showVehiculo" class="ui-corner-all">
+		<div data-role="header" data-theme="a"><h1>Resumen del vehículo</h1></div>
+		<div data-role="content" data-theme="c">
+			<div class="content"></div>
+			<table width="100%">
+				<tr>
+					<td>
+						<a href="#" data-role="button" data-theme="a" data-json="removeVehiculo" data-inline="true" data-rel="exit" id="eliminarVehiculo">Eliminar</a>
+					</td>
+					<td>
+						<a href="#" data-role="button" data-theme="b" data-inline="true" data-rel="back">Cerrar</a>
+					</td>
+				</tr>
+			</table>
 		</div>	   
 	</div>
 	
