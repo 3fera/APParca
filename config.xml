@@ -34,4 +34,8 @@
 	<preference name="android-minSdkVersion" value="7" />
 
 	<preference name="orientation" value="portrait" />
+	
+	
+	<gap:plugin name="phonegap-status-bar-notification" />
+	
 </widget> 
