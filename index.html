@@ -33,13 +33,14 @@
 	$(document).ready(function() {
 		onDeviceReady();	           		   	
    });
-   // PhoneGap is ready
-   //
    
+   // PhoneGap is ready
    function onDeviceReady() {
    		//navigator.geolocation.getCurrentPosition(onSuccess, onError);
-   		$(".btn-stop").fadeOut();
-	  	$("#info").fadeOut();
+   		$(".btn-stop").hide();
+	  	$("#info").hide();
+	  	
+	  	$("#layer-mapa").css("height", $(window).height() - parseInt($(".botones").css("height")) + 5);
 	  	
 	    $(window).resize(function(){
         	$("#layer-mapa").css("height", $(window).height() - parseInt($(".botones").css("height")) + 5)
@@ -51,16 +52,8 @@
         
         jQuery.fx.off = true;
         reloadEvents();
-       
-	  	$(".btn-stop").fadeOut();
-	    $(window).resize(function(){
-        	$("#layer-mapa").css("height", $(window).height() - parseInt($(".botones").css("height")) + 5)
-        });
         
-        $('#selectZonas').on("pagebeforeload", function() {
-        	alert($(this))
-            $(this).dialog('close');
-        });
+       
           
         $.extend(  $.mobile , {
 		    defaultPageTransition:"none",
