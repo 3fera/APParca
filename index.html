@@ -30,9 +30,9 @@
 	// Wait for PhoneGap to load
 	//
 	document.addEventListener("deviceready", onDeviceReady, false);
-	$(document).ready(function() {
+	/*$(document).ready(function() {
 		onDeviceReady();	           		   	
-   });
+   });*/
    // PhoneGap is ready
    //
    
@@ -66,6 +66,8 @@
     // onSuccess Geolocation
     //
     var map;
+    
+    
     
     function checkRun() {
 		//comprobamos si hay algun estacionamiento activo con este usuario...
@@ -205,12 +207,18 @@
 
 	
 	function reloadEvents() {
-		$("[data-json]").unbind('click');
+		
 				
 		$("[data-json]").live("click",function() {
+			console.log("click en: ");
+			console.dir($(this))
+			
+			
 			
 			var padre=$(this).parents('[data-role="dialog"]');
-	   		if(padre.length>0) padre.dialog('close'); 
+	   		if(padre.length>0) {
+		   		$.mobile.changePage("#home")
+	   		} 
 	   		
 	   		
 			var element=$(this)
