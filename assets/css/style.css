@@ -223,9 +223,7 @@ font-weight: normal;
 	margin: 8px 0;
 }
 
-.ui-page {
-    -webkit-backface-visibility: hidden;
-}
+
 .ui-loader-default {
 top: 0;
 left: 0;
