@@ -121,6 +121,16 @@
 		
 	});
 	
+	$('#registro').live("pagehide", function() {
+		if(navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(function(position){
+				initialize(position.coords.latitude,position.coords.longitude, position.coords.accuracy);
+			});
+		}
+		
+		
+	});
+	
     function initialize(lat,lng,accuracy) {
 		globales['lat']=lat;
     	globales['lng']=lng;
@@ -940,6 +950,7 @@
 		<div data-role="content" data-theme="c">
 			<div id="errorAlert_html"></div>
 		</div>	   
+		<a href="#" data-role="button" data-theme="a"  data-rel="back">Volver</a>
 	</div>
 	
 	<a data-rel="dialog" id="emulClick" href="#" ></a>		
