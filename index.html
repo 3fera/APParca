@@ -30,14 +30,23 @@
 	// Wait for PhoneGap to load
 	//
 	document.addEventListener("deviceready", onDeviceReady, false);
-	/*$(document).ready(function() {
-		onDeviceReady();	           		   	
-   });*/
+	$(document).ready(function() {
+		reloadEvents();	           		   	
+   });
    // PhoneGap is ready
    //
    
    function onDeviceReady() {
    		//navigator.geolocation.getCurrentPosition(onSuccess, onError);
+   		
+   		
+   		jQuery.fx.off = true;
+        
+         $.extend(  $.mobile , {
+		    defaultPageTransition:"none",
+		    defaultDialogTransition:"none"
+		});
+   		
    		$(".btn-stop").hide();
 	  	$("#info").hide();
 	  	
@@ -50,16 +59,9 @@
         $('#selectZonas').on("pagebeforeload", function() {
             $(this).dialog('close');
         });
+
         
-        jQuery.fx.off = true;
-        reloadEvents();
-        
-       
-          
-        $.extend(  $.mobile , {
-		    defaultPageTransition:"none",
-		    defaultDialogTransition:"none"
-		});
+
     }
 
 
@@ -207,7 +209,7 @@
 
 	
 	function reloadEvents() {
-		
+		console.log("cargamos reloadEvents");
 				
 		$("[data-json]").live("click",function() {
 			console.log("click en: ");
