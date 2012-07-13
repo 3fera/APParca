@@ -108,17 +108,17 @@
 		
 		checkRun();
 	});
+	
 	$('#login').live("pagehide", function() {
 		if(navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(position){
 				initialize(position.coords.latitude,position.coords.longitude, position.coords.accuracy);
 			});
 		}
+		
 		//comprobamos si hay algun estacionamiento activo con este usuario...
 		checkRun();
 	});
-	
-	
 	
     function initialize(lat,lng,accuracy) {
 		globales['lat']=lat;
@@ -281,19 +281,10 @@
         return pd + n.toString(); 
    } 
    function alertDismissed() {
-	        alert("nooooo");
-	    }
-	    
-   function horaLimite(){
-	   //alerta cerrada
-		/*navigator.notification.alert(
-		    'Eres el ganador!',     // mensaje (message)
-		    alertDismissed,         // funci?n 'callback' (alertCallback)
-		    'Game Over',            // titulo (title)
-		    'Cerrar'                // nombre del bot?n (buttonName)
-		);*/
-	    
+	       
    }
+	    
+   
    var horario = Array();
    horario[0]=Array();
    horario[0][0]=0;
@@ -346,7 +337,7 @@
 	}
 
    function checkHorario() {
-	   var dateCET = getDate(0);
+	   var dateCET = getDate(2);
 	   if(dateCET.getHours()>=horario[dateCET.getDay()][0] && dateCET.getHours()<horario[dateCET.getDay()][1]) 
 	   		return true;
 	   
@@ -356,12 +347,30 @@
 	   return false;
    }
    
+   var horaLimiteBool=false;
+   
+   function horaLimite(){
+	   //alerta cerrada
+	   if(navigator.notification)
+		navigator.notification.alert(
+		    'Quedan 10 minutos para llegar al l&iacute;mite de tiempo',     // mensaje (message)
+		    alertDismissed,         // funci?n 'callback' (alertCallback)
+		    'L?mite de tiempo',            // titulo (title)
+		    'Cerrar'                // nombre del bot?n (buttonName)
+		);
+	   else
+	   	alert("Quedan 10 minutos para llegar al l&iacute;mite de tiempo");
+	   	
+	   	
+	   	horaLimiteBool=true;
+   }
+   
    function updateCounter(precioHora, limite){
    		if(!checkHorario()) return 0;
    
    		precioMin = (precioHora/60);
    		
-   		if((time_segundos)>=limite*60) {
+   		if((time_segundos)>=limite*60 && !horaLimiteBool) {
    			horaLimite();
 	   		precioT = limite*precioMin;
    		} else {
@@ -372,7 +381,7 @@
    		var precioTT = precioT.toFixed(2);
    		
    		horas = Math.floor(time_segundos/3600);
-   		var minutos = Math.floor(time_segundos/60);
+   		var minutos = Math.floor(time_segundos/60) - horas*60;
    		var segundos = Math.floor(time_segundos%60);
    		var tiempo = formatoT(horas) + ":" + formatoT(minutos) + ":" + formatoT(segundos);
    		var html = precioTT + "&euro;<span>" + tiempo + "</span>";
