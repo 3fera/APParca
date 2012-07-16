@@ -22,7 +22,7 @@
 
 
 <script type="text/javascript" charset="utf-8">
-var accuracy=0;
+	var accuracy=0;
 	var lat=0;
 	var lng=0;
 	var globales=Array();
@@ -342,6 +342,8 @@ var accuracy=0;
    var horaLimiteBool=false;
    var fechaInicio;
    var diferencia_time_segundos=0;
+   var time_vacio=0;
+   var pausa=false;
    
    function horaLimite(){
 	   //alerta cerrada
@@ -349,7 +351,7 @@ var accuracy=0;
 		navigator.notification.alert(
 		    'Quedan 10 minutos para llegar al l&iacute;mite de tiempo',     // mensaje (message)
 		    alertDismissed,         // funci?n 'callback' (alertCallback)
-		    'L&iacute;mite de tiempo',            // titulo (title)
+		    'L?mite de tiempo',            // titulo (title)
 		    'Cerrar'                // nombre del bot?n (buttonName)
 		);
 	   else
@@ -360,7 +362,7 @@ var accuracy=0;
    }
 
 	
-   function diferenciaFechas (CadenaFecha) {  
+   function diferenciaFechas (CadenaFecha,flag) {  
 	     
 		//Fix para safari
 	   eval("var miFecha1 = new Date( "+ CadenaFecha.replaceAll("-",",").replaceAll(":",",").replaceAll(" ",",") +" )" ) 
@@ -377,8 +379,10 @@ var accuracy=0;
 		   
 	   }
 	   
-	   
-	   return segundos-diferencia_time_segundos;
+	   if(flag)
+	    return segundos-diferencia_time_segundos;
+	   else
+	   	return segundos-diferencia_time_segundos-time_vacio;
 	   
 	}  
    
@@ -406,8 +410,15 @@ var accuracy=0;
 	}
    
    function updateCounter(precioHora, limite){
-   		if(!checkHorario() || time_segundos>=limite*60) return 0;
-   
+   		if(!checkHorario() || time_segundos>=limite*60) {
+   			pausa=true;
+   			return 0;
+   		}
+   		if(pausa) {
+	   		checkRun();
+	   		pausa=false;
+   		}
+   		
    		precioMin = (precioHora/60);
    		
    		time_segundos=diferenciaFechas(fechaInicio);
@@ -434,15 +445,15 @@ var accuracy=0;
    
    function setDiferenciaHora() {
 	   if(fechaServidor!=null && diferencia_time_segundos==0)
-	   		diferencia_time_segundos=diferenciaFechas(fechaServidor);
-	   
+	  		diferencia_time_segundos=diferenciaFechas(fechaServidor,true);
+	  
    }
    
-   function startCounter(precioHora, limite, tiempo, fechaInicio1, fechaServidor1){
+   function startCounter(precioHora, limite, tiempo, fechaInicio1, fechaServidor1,time_vacio1){
    		time_segundos = tiempo;
    		fechaInicio=fechaInicio1;
    		fechaServidor=fechaServidor1;
-   		diferencia_time_segundos=0;
+   		time_vacio=time_vacio1;
    		
    		setDiferenciaHora();
    		
