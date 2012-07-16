@@ -3,6 +3,7 @@ html, body {
     font-family: Arial, Helvetica, Sans-serif;
     background: #666666;
     padding: 0px;
+    overflow: hidden;
 }
 
 .details-page {
@@ -104,6 +105,9 @@ left: 68px;
 	bottom: 100px;
 	
 	box-shadow: -8px -2px 12px #333;
+
+	overflow: hidden;
+
 }
 
 .col2 {
