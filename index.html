@@ -433,7 +433,7 @@ var accuracy=0;
    }
    
    function setDiferenciaHora() {
-	   if(fechaServidor!=null)
+	   if(fechaServidor!=null && diferencia_time_segundos==0)
 	   		diferencia_time_segundos=diferenciaFechas(fechaServidor);
 	   
 	   alert(diferencia_time_segundos)
@@ -443,6 +443,7 @@ var accuracy=0;
    		time_segundos = tiempo;
    		fechaInicio=fechaInicio1;
    		fechaServidor=fechaServidor1;
+   		diferencia_time_segundos=0;
    		
    		setDiferenciaHora();
    		
