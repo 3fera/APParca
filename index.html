@@ -368,8 +368,9 @@
 	   return false;
    }
    
-    var horaLimiteBool=false;
+     var horaLimiteBool=false;
    var fechaInicio;
+   var diferencia_time_segundos=0;
    
    function horaLimite(){
 	   //alerta cerrada
@@ -394,7 +395,6 @@
 	   eval("var miFecha1 = new Date( "+ CadenaFecha.replaceAll("-",",").replaceAll(":",",").replaceAll(" ",",") +" )" ) 
 	   var miFecha2 = getDate(2); 
 	  
-	  if(miFecha1.getMonth() + 1)
 	
 	   var diferencia = miFecha2.getTime() - miFecha1.getTime() 
 	   var segundos = Math.floor(diferencia / 1000)  
@@ -407,7 +407,7 @@
 	   }
 	   
 	   
-	   return segundos;
+	   return segundos-diferencia_time_segundos;
 	   
 	}  
    
@@ -461,14 +461,19 @@
 	  	
    }
    
-   function startCounter(precioHora, limite, tiempo, fechaInicio1){
+   function startCounter(precioHora, limite, tiempo, fechaInicio1, fechaServidor1){
    		time_segundos = tiempo;
    		fechaInicio=fechaInicio1;
+   		fechaServidor=fechaServidor1;
+   		
+   		diferencia_time_segundos=diferenciaFechas(fechaServidor1);
+   		
    		updateCounter(precioHora, limite);
    		clearInterval(intervalUpdateGasto);
 	    intervalUpdateGasto=setInterval('updateCounter(' + precioHora + "," + limite + ')', 1000);
 	 //   intervalUpdateGastoServer=setInterval('checkRun()', 60000);
    }
+
        
 
        
@@ -756,9 +761,6 @@
 			</div>
 			<table width="100%">
 				<tr>
-					<td>
-						<a href="#" data-role="button" data-theme="a" onClick="navigator.app.backHistory()">Salir</a>
-					</td>
 					<td>
 						<a href="#" data-role="button" data-theme="b" data-rel="back">Volver</a>
 					</td>
