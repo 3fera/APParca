@@ -100,8 +100,8 @@ left: 68px;
 		color-stop(0.55, rgb(252,252,252))
 	);
 	position: absolute;
-	padding: 2%;
-	width: 97%;
+	padding: 10px;
+	width: 100%;
 	bottom: 100px;
 	
 	box-shadow: -8px -2px 12px #333;
