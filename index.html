@@ -22,7 +22,7 @@
 
 
 <script type="text/javascript" charset="utf-8">
-	var accuracy=0;
+var accuracy=0;
 	var lat=0;
 	var lng=0;
 	var globales=Array();
@@ -60,21 +60,20 @@
             $(this).dialog('close');
         });
 
-        document.addEventListener("resume", onResume, false);
+        
 
     }
 
-    function onResume() {
-    	checkRun();
-    }
-    
+
     // onSuccess Geolocation
     //
     var map;
-    
+    var fechaServidor=null;
     
     
     function checkRun() {
+    //	
+    
 		//comprobamos si hay algun estacionamiento activo con este usuario...
 		$.post("http://clients.3fera.com/aparca/json/checkRun/", "1", function(data, textStatus) {
    			//data contains the JSON object
@@ -102,6 +101,7 @@
         	}
 
    		}, "json");
+   		
    	}
 
     $('#home').live("pagecreate", function() {
@@ -135,7 +135,9 @@
 	});
 	
     function initialize(lat,lng,accuracy) {
-		globales['lat']=lat;
+		/*globales['lat']="41.795232";
+    	globales['lng']="3.042054";*/
+    	globales['lat']=lat;
     	globales['lng']=lng;
     	globales['accuracy']=accuracy + 150;
 		var latlng = new google.maps.LatLng(lat, lng);
@@ -171,7 +173,8 @@
 		map.fitBounds(circle.getBounds());
 		
 		checkRun();
-				
+		if(fechaServidor!=null)
+			setDiferenciaHora();		
 	}
     
     
@@ -187,39 +190,7 @@
 	var intervalUpdateGasto;
 	var intervalUpdateGastoServer;
 	
-	/*para debug*/
-	function censor(censor) {
-	  return (function() {
-	    var i = 0;
-	
-	    return function(key, value) {
-	      if(i !== 0 && typeof(censor) === 'object' && typeof(value) == 'object' && censor == value) 
-	        return '[Circular]'; 
-	
-	      if(i >= 29) // seems to be a harded maximum of 30 serialized objects?
-	        return '[Unknown]';
-	
-	      ++i; // so we know we aren't using the original object anymore
-	
-	      return value;  
-	    }
-	  })(censor);
-	}
-	
-	function getDataAttributes(node) {
-	    var d = {}, 
-	        re_dataAttr = /^data\-(.+)$/;
-	
-	    $.each(node.get(0).attributes, function(index, attr) {
-	        if (re_dataAttr.test(attr.nodeName)) {
-	            var key = attr.nodeName.match(re_dataAttr)[1];
-	            d[key] = attr.nodeValue;
-	        }
-	    });
-	
-	    return d;
-	}
-	
+
 
 	
 	function reloadEvents() {
@@ -257,8 +228,8 @@
    				console.dir(textStatus);
    				
    				console.log("Destino:" + data.destino);
-   				console.log("Destino:" + data.html);
-   				console.log("Destino:" + data.js);
+   				console.log("html:" + data.html);
+   				console.log("js:" + data.js);
    				
    				if(data.destino) {
 					destino=$(data.destino);
@@ -368,7 +339,7 @@
 	   return false;
    }
    
-     var horaLimiteBool=false;
+   var horaLimiteBool=false;
    var fechaInicio;
    var diferencia_time_segundos=0;
    
@@ -461,21 +432,25 @@
 	  	
    }
    
+   function setDiferenciaHora() {
+	   
+	   diferencia_time_segundos=diferenciaFechas(fechaServidor);
+	   
+   }
+   
    function startCounter(precioHora, limite, tiempo, fechaInicio1, fechaServidor1){
    		time_segundos = tiempo;
    		fechaInicio=fechaInicio1;
    		fechaServidor=fechaServidor1;
    		
-   		diferencia_time_segundos=diferenciaFechas(fechaServidor1);
+   		setDiferenciaHora();
+   		
    		
    		updateCounter(precioHora, limite);
    		clearInterval(intervalUpdateGasto);
 	    intervalUpdateGasto=setInterval('updateCounter(' + precioHora + "," + limite + ')', 1000);
 	 //   intervalUpdateGastoServer=setInterval('checkRun()', 60000);
    }
-
-       
-
        
    function getCoordsJSON() {
    		return "lat="+ globales['lat'] +"&lng="+globales['lng']+"&ac="+ globales['accuracy']; 	
@@ -543,6 +518,7 @@
     }
     
 </script>
+
 </head>
 
 <body>
