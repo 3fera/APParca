@@ -406,7 +406,7 @@ var accuracy=0;
 	}
    
    function updateCounter(precioHora, limite){
-   		if(!checkHorario()) return 0;
+   		if(!checkHorario() || time_segundos>=limite*60) return 0;
    
    		precioMin = (precioHora/60);
    		
@@ -436,7 +436,6 @@ var accuracy=0;
 	   if(fechaServidor!=null && diferencia_time_segundos==0)
 	   		diferencia_time_segundos=diferenciaFechas(fechaServidor);
 	   
-	   alert(diferencia_time_segundos)
    }
    
    function startCounter(precioHora, limite, tiempo, fechaInicio1, fechaServidor1){
