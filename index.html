@@ -60,11 +60,14 @@
             $(this).dialog('close');
         });
 
-        
+        document.addEventListener("resume", onResume, false);
 
     }
 
-
+    function onResume() {
+    	checkRun();
+    }
+    
     // onSuccess Geolocation
     //
     var map;
@@ -182,6 +185,7 @@
 <script>
     
 	var intervalUpdateGasto;
+	var intervalUpdateGastoServer;
 	
 	/*para debug*/
 	function censor(censor) {
@@ -413,6 +417,7 @@
    		updateCounter(precioHora, limite);
    		clearInterval(intervalUpdateGasto);
 	    intervalUpdateGasto=setInterval('updateCounter(' + precioHora + "," + limite + ')', 1000);
+	    intervalUpdateGastoServer=setInterval('checkRun()', 60000);
    }
        
    function getCoordsJSON() {
@@ -700,7 +705,7 @@
 			<table width="100%">
 				<tr>
 					<td>
-						<a href="#" data-role="button" data-theme="a" onClick="navigator.app.exitApp()">Salir</a>
+						<a href="#" data-role="button" data-theme="a" onClick="navigator.app.backHistory()">Salir</a>
 					</td>
 					<td>
 						<a href="#" data-role="button" data-theme="b" data-rel="back">Volver</a>
@@ -949,8 +954,9 @@
 		</div>
 		<div data-role="content" data-theme="c">
 			<div id="errorAlert_html"></div>
+			<a href="#" data-role="button" data-theme="a"  data-rel="back">Volver</a>
 		</div>	   
-		<a href="#" data-role="button" data-theme="a"  data-rel="back">Volver</a>
+		
 	</div>
 	
 	<a data-rel="dialog" id="emulClick" href="#" ></a>		
