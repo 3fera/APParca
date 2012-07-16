@@ -349,7 +349,7 @@ var accuracy=0;
 		navigator.notification.alert(
 		    'Quedan 10 minutos para llegar al l&iacute;mite de tiempo',     // mensaje (message)
 		    alertDismissed,         // funci?n 'callback' (alertCallback)
-		    'L?mite de tiempo',            // titulo (title)
+		    'L&iacute;mite de tiempo',            // titulo (title)
 		    'Cerrar'                // nombre del bot?n (buttonName)
 		);
 	   else
@@ -433,9 +433,10 @@ var accuracy=0;
    }
    
    function setDiferenciaHora() {
+	   if(fechaServidor!=null)
+	   		diferencia_time_segundos=diferenciaFechas(fechaServidor);
 	   
-	   diferencia_time_segundos=diferenciaFechas(fechaServidor);
-	   
+	   alert(diferencia_time_segundos)
    }
    
    function startCounter(precioHora, limite, tiempo, fechaInicio1, fechaServidor1){
