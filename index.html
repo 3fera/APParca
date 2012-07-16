@@ -53,7 +53,9 @@
 	  	$("#layer-mapa").css("height", $(window).height() - parseInt($(".botones").css("height")) + 5);
 	  	
 	    $(window).resize(function(){
+        	
         	$("#layer-mapa").css("height", $(window).height() - parseInt($(".botones").css("height")) + 5)
+        	$("#info").css("width", $(window).width())
         });
 	
         $('#selectZonas').on("pagebeforeload", function() {
@@ -174,7 +176,9 @@
 		
 		checkRun();
 		if(fechaServidor!=null)
-			setDiferenciaHora();		
+			setDiferenciaHora();	
+			
+		$("#info").css("width", $(window).width())	
 	}
     
     
