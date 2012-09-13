@@ -53,9 +53,7 @@
 	  	$("#layer-mapa").css("height", $(window).height() - parseInt($(".botones").css("height")) + 5);
 	  	
 	    $(window).resize(function(){
-        	
         	$("#layer-mapa").css("height", $(window).height() - parseInt($(".botones").css("height")) + 5)
-        	$("#info").css("width", $(window).width())
         });
 	
         $('#selectZonas').on("pagebeforeload", function() {
@@ -136,12 +134,33 @@
 		
 	});
 	
+	var directionsDisplay;
+	var directionsService = new google.maps.DirectionsService();
+	function calcRoute() {
+		if(parseInt(globales['accuracy'])<20){
+			var start = new google.maps.LatLng(globales['lat'],globales['lng']);
+			var end = marker.getPosition();
+			var request = {
+				origin:start,
+				destination:end,
+				travelMode: google.maps.TravelMode.WALKING
+			};
+			directionsDisplay = new google.maps.DirectionsRenderer();
+			directionsDisplay.setMap(map);
+			directionsService.route(request, function(result, status) {
+				if (status == google.maps.DirectionsStatus.OK) {
+					directionsDisplay.setDirections(result);
+				}
+			});
+		}
+	}
+	
     function initialize(lat,lng,accuracy) {
 		/*globales['lat']="41.795232";
     	globales['lng']="3.042054";*/
     	globales['lat']=lat;
     	globales['lng']=lng;
-    	globales['accuracy']=accuracy + 150;
+    	globales['accuracy']=accuracy;
 		var latlng = new google.maps.LatLng(lat, lng);
 		var myOptions = {
 			zoom: 16,
@@ -153,7 +172,7 @@
 		    mapTypeControl: false,
 			mapTypeId: google.maps.MapTypeId.ROADMAP
 		};
-	    var map = new google.maps.Map(document.getElementById("map_canvas"),myOptions);
+	    map = new google.maps.Map(document.getElementById("map_canvas"),myOptions);
 	    
 	    marker = new google.maps.Marker({
 			position: latlng, 
@@ -161,24 +180,39 @@
 		 	title: "Mi coche!"
 		});
 				
-	    var circle = new google.maps.Circle({
-		    center: latlng,
-		    radius: globales['accuracy'],
-		    map: map, //your map,
-		    fillColor: 'blue', //color,
-		    fillOpacity: 0.2, //opacity from 0.0 to 1.0,
-		    strokeColor: 'blue', //stroke color,
-		    strokeOpacity: 0.5 //opacity from 0.0 to 1.0
+	   var circle = new google.maps.Circle({
+			    center: latlng,
+			    radius: globales['accuracy'],
+			    map: map, //your map,
+			    fillColor: 'blue', //color,
+			    fillOpacity: 0.2, //opacity from 0.0 to 1.0,
+			    strokeColor: 'blue', //stroke color,
+			    strokeOpacity: 0.5 //opacity from 0.0 to 1.0
 		});
+			
+		//Si el margen de error es mayor a 20
+		if(parseInt(globales['accuracy'])>20){
+			if(navigator.notification){
+				navigator.notification.alert(
+				    'No es posible determinar una posici?n precisa de su ubicaci\xf3n actual.',     // mensaje (message)
+				    alertDismissed,         // funci?n 'callback' (alertCallback)
+				    'Posici?n no precisa',            // titulo (title)
+				    'Cerrar'                // nombre del bot?n (buttonName)
+				);
+			}else{
+	    		alert("No es posible determinar una precisa muy exacta de su ubicaci\xf3n actual.");
+	    	}
+	    	//set the zoom level to the circle's size
+		    map.fitBounds(circle.getBounds());
+	    }
+	    
 		
-		//set the zoom level to the circle's size
-		map.fitBounds(circle.getBounds());
+		
 		
 		checkRun();
 		if(fechaServidor!=null)
-			setDiferenciaHora();	
+			setDiferenciaHora();		
 			
-		$("#info").css("width", $(window).width())	
 	}
     
     
@@ -348,18 +382,19 @@
    var diferencia_time_segundos=0;
    var time_vacio=0;
    var pausa=false;
+   var limiteAlcanzado= false;
    
    function horaLimite(){
 	   //alerta cerrada
 	   if(navigator.notification)
 		navigator.notification.alert(
-		    'Quedan 10 minutos para llegar al l&iacute;mite de tiempo',     // mensaje (message)
+		    'Quedan 10 minutos para llegar al l\xedmite de tiempo',     // mensaje (message)
 		    alertDismissed,         // funci?n 'callback' (alertCallback)
-		    'L?mite de tiempo',            // titulo (title)
+		    'L\xedmite de tiempo',            // titulo (title)
 		    'Cerrar'                // nombre del bot?n (buttonName)
 		);
 	   else
-	   	alert("Quedan 10 minutos para llegar al l&iacute;mite de tiempo");
+	   	alert("Quedan 10 minutos para llegar al l\xedmite de tiempo");
 	   	
 	   	
 	   	horaLimiteBool=true;
@@ -416,35 +451,47 @@
    function updateCounter(precioHora, limite){
    		if(!checkHorario() || time_segundos>=limite*60) {
    			pausa=true;
+   			if(!limiteAlcanzado) {
+   				printTime(precioHora, limite*60, limite);
+   			}
    			return 0;
    		}
    		if(pausa) {
 	   		checkRun();
 	   		pausa=false;
+	   		limiteAlcanzado=false;
    		}
    		
    		precioMin = (precioHora/60);
    		
    		time_segundos=diferenciaFechas(fechaInicio);
    		
-   		if((time_segundos)>=limite*60 && !horaLimiteBool) {
+	  	printTime(precioHora, time_segundos, limite);
+   }
+   
+   function printTime(precioHora, tiempo, limite) {
+	   
+	   precioMin = (precioHora/60);
+   		
+   		
+   		if((tiempo)>=((limite*60)-10) && !horaLimiteBool) {
    			horaLimite();
 	   		precioT = limite*precioMin;
    		} else {
-   			fix = time_segundos + 60;
+   			fix = tiempo + 60;
 	   		precioT = precioMin * (Math.floor(fix/60));
    		}
    		
    		var precioTT = precioT.toFixed(2);
    		
-   		horas = Math.floor(time_segundos/3600);
-   		var minutos = Math.floor(time_segundos/60) - horas*60;
-   		var segundos = Math.floor(time_segundos%60);
+   		horas = Math.floor(tiempo/3600);
+   		var minutos = Math.floor(tiempo/60) - horas*60;
+   		var segundos = Math.floor(tiempo%60);
    		var tiempo = formatoT(horas) + ":" + formatoT(minutos) + ":" + formatoT(segundos);
    		var html = precioTT + "&euro;<span>" + tiempo + "</span>";
    		
    		$('#tarifaUpdate').html(html);
-	  	
+   		
    }
    
    function setDiferenciaHora() {
@@ -534,7 +581,6 @@
     }
     
 </script>
-
 </head>
 
 <body>
@@ -662,7 +708,7 @@
         </div>
         <div class="info" id="info"></div>
 		<div class="botones" data-theme="a">
-			<a href="" data-json="getTicket" data-json-data="getTicketActualJSON()" class="btn-euros"></a>
+			<a href="" data-json="getRuta" data-json-data="getTicketActualJSON()" class="btn-euros"></a>
 			<a href="" data-json="clickSearchZonas" data-json-data="getCoordsJSON()" data-json-destino="#info" class="btn-run"></a>
 			<a href="#confirmarStop" class="btn-stop" data-rel="dialog"></a>
 			<a href="#clickTools" class="btn-tools" data-rel="page" data-shadow="true"  data-transition="pop" data-corners="true"></a>
@@ -685,7 +731,7 @@
 
 	<!-- Seleccionar zonas -->
 	<div data-role="dialog" data-transition="none" id="selectZonas">
-		<div data-role="header" data-theme="a"><h1>Zona</h1></div>
+		<div data-role="header" data-theme="a"><h1>SELECCIONAR ZONA</h1></div>
 		<div data-role="content" data-theme="c">
 			<div class="content">
 			</div>
@@ -749,12 +795,12 @@
 		<div data-role="header" data-theme="a"><h1>Ticket</h1></div>
 		<div data-role="content" data-theme="c">
 			<div class="content">
-			¿Desea finalizar su aparcamiento? 
+			¿Desea finalizar su aparcamiento?
 			</div>
 			<table width="100%">
 				<tr>
 					<td>
-						<a href="#" data-role="button" data-theme="b" onclick="navigator.app.exitApp();" data-rel="back">Salir</a>
+						<a href="#" data-role="button" data-theme="a" data-rel="exit" onClick="navigator.app.exitApp()">Salir</a>
 					</td>
 					<td>
 						<a href="#" data-role="button" data-theme="b" data-rel="back">Volver</a>
@@ -807,22 +853,28 @@
 			<div class="content-primary">	
 				<ul data-role="listview">
 					<li>
-						<a href="#gestionVehiculos" class="ui-link-inherit">
-							<h3>Gestión de vehículos</h3>
-							<p>Desde este apartado podrás dar de alta y baja tu flota de vehículos.</p>
-						</a>
-					
-					</li>
-					<li>
 						<a href="#perfil" class="ui-link-inherit">
-							<h3>Perfil</h3>
+							<h3>Usuario</h3>
 							<p>Apartado desde el que podrás cambiar tus datos de acceso a la app.</p>
 						</a>
 					</li>
 					<li>
+						<a href="#gestionVehiculos" class="ui-link-inherit">
+							<h3>Mis matriculas</h3>
+							<p>Para cambiar/borrar/añadir matrículas.</p>
+						</a>
+					
+					</li>
+					<li>
 						<a href="#gestionPagos" class="ui-link-inherit">
-							<h3>Gestión de pagos</h3>
+							<h3>Mis tickets</h3>
 							<p>Desde este aparado podras gestionar las formas de pago.</p>
+						</a>
+					</li>
+					<li>
+						<a href="#gestionPagos" class="ui-link-inherit">
+							<h3>Normativa de aparcamiento</h3>
+							<p>Información de tarifas, zonas, períodos de pago, tiempos máximos...</p>
 						</a>
 					</li>
 					<li>
@@ -833,14 +885,8 @@
 					</li>
 					<li>
 						<a href="#" data-json="salir" class="ui-link-inherit">
-							<h3>Cerrar sesion</h3>
-							<p>Cierra la sesión actual</p>
-						</a>
-					</li>
-					<li>
-						<a href="#" onclick="navigator.app.exitApp();" data-json="salir" class="ui-link-inherit">
 							<h3>Salir</h3>
-							<p>Se cierra APParca</p>
+							<p>Cierra la sesión actual</p>
 						</a>
 					</li>
 				</ul>
@@ -1009,9 +1055,7 @@
 		</div>
 		<div data-role="content" data-theme="c">
 			<div id="errorAlert_html"></div>
-			<a href="#" data-role="button" data-theme="a"  data-rel="back">Volver</a>
 		</div>	   
-		
 	</div>
 	
 	<a data-rel="dialog" id="emulClick" href="#" ></a>		

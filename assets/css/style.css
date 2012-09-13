@@ -3,7 +3,6 @@ html, body {
     font-family: Arial, Helvetica, Sans-serif;
     background: #666666;
     padding: 0px;
-    overflow: hidden;
 }
 
 .details-page {
@@ -80,7 +79,7 @@ a.btn-euros {
 }
 a.btn-tools {
 	background: url(../images/boton_tools.png) no-repeat;
- left: 68px;
+left: 68px;
 
 	
 }
@@ -100,14 +99,11 @@ a.btn-tools {
 		color-stop(0.55, rgb(252,252,252))
 	);
 	position: absolute;
-	padding: 2%;
-	width: 97%;
+	padding: 10px;
+	width: 100%;
 	bottom: 100px;
 	
 	box-shadow: -8px -2px 12px #333;
-
-	overflow: hidden;
-
 }
 
 .col2 {
@@ -244,4 +240,33 @@ position: absolute  !important;
 top: 50%  !important;
 margin-left: -22px  !important;
 margin-top: -22px  !important;
+}
+
+
+.tipoZonas.c_2{
+	background-image: none;
+	background-color: #D5FDB0;
+}
+
+.ui-btn-active.c2{
+	background-color: #6FA83A!important;
+}
+
+.tipoZonas.c_1{
+	background-image: none;
+	background-color: #B0DEFD;
+}
+.ui-btn-active.c1{
+	background-color: #4593C7!important;
+}
+
+a[title="Close"] {
+	
+	display: none !important;
+	
+}
+
+.ui-btn-inner {
+padding: 15px 20px !important;
+font-size: 115% !important;
 }
