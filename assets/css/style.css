@@ -23,25 +23,18 @@ html, body {
     padding: 0;
     text-shadow: none;
 }
-
 #login {
-	
-	background: url(../images/bgLoading.png) center center;
-	
+	background: url(../images/bgLoading.jpg) center center;
 }
-
 .sin-padding {
-	
 	padding: 0px !important;
-	
 }
 .botones {
-	
 	background: url(../images/bg_botonera.png) repeat-x;
-height: 106px;
-bottom: 0;
-position: absolute !important;
-border-top: 0;
+	height: 106px;
+	bottom: 0;
+	position: absolute !important;
+	border-top: 0;
 	width: 100%;
 }
 
@@ -266,7 +259,39 @@ a[title="Close"] {
 	
 }
 
-.ui-btn-inner {
+.boton_grande .ui-btn-inner, #logginDiv .ui-btn-inner {
 padding: 15px 20px !important;
 font-size: 115% !important;
+}
+.oculto {
+	
+	display: none !important;
+	
+}
+#periodoInactivo {
+	display: block;
+	position: absolute;
+	text-align: center;
+	left: 0;
+	margin-top: 0;
+
+	background-image: linear-gradient(bottom, rgb(252,252,252) 55%, rgb(235,235,235) 0% );
+	background-image: -o-linear-gradient(bottom, rgb(252,252,252) 55%, rgb(235,235,235) 0% );
+	background-image: -moz-linear-gradient(bottom, rgb(252,252,252) 55%, rgb(235,235,235) 0% );
+	background-image: -webkit-linear-gradient(bottom, rgb(252,252,252) 55%, rgb(235,235,235) 0% );
+	background-image: -ms-linear-gradient(bottom, rgb(252,252,252) 55%, rgb(235,235,235) 0% );
+	
+	background-image: -webkit-gradient(
+		linear,
+		left bottom,
+		left top,
+		color-stop(0.55, rgb(252,252,252)),
+		color-stop(0, rgb(235,235,235))
+	);
+
+	padding: 5px 28px;
+	border-radius: 5px 5px 0 0;
+	z-index: 100000000;
+	bottom: 173px;
+	width: 100px;
 }
