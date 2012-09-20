@@ -117,22 +117,24 @@
 		
 	});
 	
-	$('#login').live("pagehide", function() {
-		/*if(navigator.geolocation) {
+	$('#login').live("pagehide", function(event, ui) {
+		if(ui.nextPage.attr("id")=="home")
+		if(navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(position){
 				initialize(position.coords.latitude,position.coords.longitude, position.coords.accuracy);
 			});
-		}*/
+		}
 		
 		
 	});
 	
-	$('#registro').live("pagehide", function() {
-		/*if(navigator.geolocation) {
+	$('#registro').live("pagehide", function(event, ui) {
+		if(ui.nextPage.attr("id")=="home")
+		if(navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(position){
 				initialize(position.coords.latitude,position.coords.longitude, position.coords.accuracy);
 			});
-		}*/
+		}
 		
 		
 	});
