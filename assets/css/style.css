@@ -269,29 +269,19 @@ font-size: 115% !important;
 	
 }
 #periodoInactivo {
-	display: block;
-	position: absolute;
-	text-align: center;
-	left: 0;
-	margin-top: 0;
-
-	background-image: linear-gradient(bottom, rgb(252,252,252) 55%, rgb(235,235,235) 0% );
-	background-image: -o-linear-gradient(bottom, rgb(252,252,252) 55%, rgb(235,235,235) 0% );
-	background-image: -moz-linear-gradient(bottom, rgb(252,252,252) 55%, rgb(235,235,235) 0% );
-	background-image: -webkit-linear-gradient(bottom, rgb(252,252,252) 55%, rgb(235,235,235) 0% );
-	background-image: -ms-linear-gradient(bottom, rgb(252,252,252) 55%, rgb(235,235,235) 0% );
-	
-	background-image: -webkit-gradient(
-		linear,
-		left bottom,
-		left top,
-		color-stop(0.55, rgb(252,252,252)),
-		color-stop(0, rgb(235,235,235))
-	);
-
-	padding: 5px 28px;
-	border-radius: 5px 5px 0 0;
-	z-index: 100000000;
-	bottom: 173px;
-	width: 100px;
+display: block;
+position: absolute;
+text-align: center;
+left: 0;
+margin-top: 0;
+padding: 5px 28px;
+border-radius: 5px 5px 0 0;
+z-index: 100000000;
+bottom: 173px;
+width: 100px;
+background-image: none;
+background: #333;
+color: white;
+text-shadow: none;
+font-size: 13px;
 }

@@ -72,7 +72,7 @@
     //
     var map;
     var fechaServidor=null;
-    
+    var accuracy_min=80;
     
     function checkRun() {
     //	
@@ -148,7 +148,11 @@
 			return 0;
 		}
 		//Comprobamos el margen de error
-		if(parseInt(globales['accuracy'])<20){
+		if(parseInt(globales['accuracy'])>accuracy_min){
+			$('#errorAlert_header').html('Error');
+			$('#errorAlert_html').html('Tiene una cobertura GPS con poca se?al. Es posible que la ruta no sea la m?s correcta.');
+			emularClickPopup('#errorAlert');
+		}
 			var start = new google.maps.LatLng(globales['lat'],globales['lng']);
 			var end = marker.getPosition();
 			var request = {
@@ -163,12 +167,10 @@
 					directionsDisplay.setDirections(result);
 				}
 			});
-		} else {
-			$('#errorAlert_header').html('Error');
-			$('#errorAlert_html').html('No es posible calcular la ruta. No hay suficiente cobertura GPS.');
-			emularClickPopup('#errorAlert');
-		}
+		
 	}
+	
+	
 	
     function initialize(lat,lng,accuracy) {
 		/*globales['lat']="41.795232";
@@ -191,8 +193,7 @@
 	    
 	    marker = new google.maps.Marker({
 			position: latlng, 
-			map: map,
-		 	title: "Mi coche!"
+			map: map
 		});
 				
 	   var circle = new google.maps.Circle({
@@ -206,7 +207,7 @@
 		});
 			
 		//Si el margen de error es mayor a 20
-		if(parseInt(globales['accuracy'])>20){
+		if(parseInt(globales['accuracy'])>accuracy_min){
 			if(navigator.notification){
 				navigator.notification.alert(
 				    'No es posible determinar una posici\xf3n precisa de su ubicaci\xf3n actual.',     // mensaje (message)
@@ -469,7 +470,7 @@
    function marcarPeriodoInactivo() {
 	   if(pausa) {
 		   	$("#periodoInactivo").removeClass("oculto");
-		   	$(".info div").css('opacity','0.7');
+		   	$(".info div").css('opacity','0.5');
 	   }
 	   else {
 	   		$("#periodoInactivo").addClass("oculto");
@@ -480,9 +481,12 @@
    
    function updateCounter(precioHora, limite){
    		if(!checkHorario()) {
-   			pausa=true;
-   			marcarPeriodoInactivo();
    			
+   			marcarPeriodoInactivo();
+   			if(!pausa) {
+   				printTime(precioHora, time_segundos, limite);
+   			}
+   			pausa=true;
    			return 0;
    		}
    		if(pausa) {
@@ -493,11 +497,12 @@
    		}
    		
    		//Hemos llegado al l?mite?
-		if( time_segundos>=limite*60 ) {
-
+		if( time_segundos>limite*60 ) {
 			if(!limiteAlcanzado) {
    				printTime(precioHora, limite*60, limite);
    			}
+   			limiteAlcanzado=true;
+   			return 0;
 
 		}
    		
@@ -511,6 +516,8 @@
    function printTime(precioHora, tiempo, limite) {
 	   
 	   precioMin = (precioHora/60);
+   		
+   		
    		
    		
    		if((tiempo)>=((limite*60)-600) && !horaLimiteBool) {
@@ -527,6 +534,21 @@
    		var minutos = Math.floor(tiempo/60) - horas*60;
    		var segundos = Math.floor(tiempo%60);
    		var tiempo2 = formatoT(horas) + ":" + formatoT(minutos) + ":" + formatoT(segundos);
+   		
+   		
+   		if( tiempo>=limite*60 ) {
+   			tiempo=limite*60;
+			horas = Math.floor(tiempo/3600);
+	   		var minutos = Math.floor(tiempo/60) - horas*60;
+	   		var segundos = Math.floor(tiempo%60);
+	   		var tiempo2 = formatoT(horas) + ":" + formatoT(minutos) + ":" + formatoT(segundos);
+	   		
+	   		fix = tiempo;
+	   		precioT = precioMin * (Math.floor(fix/60));
+	   		precioTT = precioT.toFixed(2);
+		}
+
+   		
    		var html = precioTT + "&euro;<span>" + tiempo2 + "</span>";
    		
    		$('#tarifaUpdate').html(html);
@@ -807,7 +829,16 @@
 		<div data-role="header" data-theme="a"><h1>Confirmar</h1></div>
 		<div data-role="content" data-theme="c">
 			<div id="confirmarRun_html"></div>
-			<a href="#" data-json="clickRun" data-json-data="getCoordsJSONAndTarifa()" data-role="button" class="boton_grande"  data-theme="e">Aceptar</a>
+			<table width="100%">
+				<tr>
+					<td>
+						<a href="#" data-role="button" data-theme="a" class="boton_grande"   data-rel="back">Volver</a>
+					</td>
+					<td>
+						<a href="#" data-json="clickRun" data-json-data="getCoordsJSONAndTarifa()" data-role="button" class="boton_grande"  data-theme="e">Aceptar</a>
+					</td>
+				</tr>
+			</table>		
 		</div>	   
 	</div>
 	
@@ -913,12 +944,12 @@
 							<p>Desde este aparado podras gestionar las formas de pago.</p>
 						</a>
 					</li>
-					<li>
+					<!--<li>
 						<a href="#gestionPagos" class="ui-link-inherit">
 							<h3>Normativa de aparcamiento</h3>
 							<p>Información de tarifas, zonas, períodos de pago, tiempos máximos...</p>
 						</a>
-					</li>
+					</li>-->
 					<li>
 						<a href="#ayuda" class="ui-link-inherit">
 							<h3>Ayuda</h3>
@@ -1040,50 +1071,50 @@
 			<div class="content-primary">
 				<div data-role="collapsible-set">
 					<div data-role="collapsible" data-theme="c" data-content-theme="d">
-						<h3>¿Hay que registrarse para utilizar el servicio?</h3>
-						<p>Sí, al descargar la aplicación en tu smartphone el sistema te propone el registro de tus datos personales.</p>
+						<h3>¿Hay que registrarse para utilizar el servicio? </h3>
+						<p>Sí, al descargar la aplicación el sistema te propone el registro de tus datos personales.  </p>
 					</div>
 					<div data-role="collapsible" data-theme="c" data-content-theme="d">
-						<h3>¿Funciona el servicio también para usuarios con smarphones de operadoras extranjeras?</h3>
-						<p>Si, con cualquier operador, previo registro de datos.</p>
+						<h3>¿Están seguros mis datos de la tarjeta de crédito y de mi cuenta bancaria en el sistema? </h3>
+						<p>Si, ÁPPARCA cumple los requisitos de la ley de protección de datos y aplica los métodos más recientes para proteger los datos personales de nuestros clientes. No guardamos los datos de tarjetas de crédito/débito en nuestra base de datos. Los datos de la tarjeta se introduce directamente en la aplicación de La Caixa sin necesidad de grabarlos en nuestro sistema. 
+</p>
 					</div>
 					<div data-role="collapsible" data-theme="c" data-content-theme="d">
-						<h3>¿Necesito un distintivo aparte de mi matrícula para indicar al controlador que estoy utilizando el servicio de pago APPARCA? </h3>
-						<p>No, salvo que algún ayuntamiento lo requiriera. </p>
+						<h3>¿Como sabe el agente que estoy pagando mi aparcamiento? </h3>
+						<p>El control se realiza verificando la existencia de una operación de estacionamiento en curso, registrada en la BBDD de operaciones del sistema para la matrícula del coche estacionado que se comprueba. 
+</p>
 					</div>
 					<div data-role="collapsible" data-theme="c" data-content-theme="d">
-						<h3>¿Como puedo registrar más de un coche?</h3>
-						<p>No, salvo que algún ayuntamiento lo requiriera. </p>
+						<h3>¿Necesito un distintivo para indicar al controlador que estoy utilizando el servicio de pago APPARCA? </h3>
+						<p>No, salvo que algún ayuntamiento lo requiriera, la matricula del vehículo es suficiente. </p>
 					</div>
 					<div data-role="collapsible" data-theme="c" data-content-theme="d">
-						<h3>¿Como puedo registrar más de un coche?</h3>
-						<p>En APPARCA se pueden asociar varias matrículas de coches a un solo usuario.. </p>
+						<h3>¿Puedo registrar más de un coche? </h3>
+						<p>Si, en APPARCA se pueden asociar varias matrículas de coches a un solo usuario. </p>
 					</div>
 					<div data-role="collapsible" data-theme="c" data-content-theme="d">
-						<h3>Están seguros mis datos de la tarjeta de crédito y de mi cuenta bancaria en el sistema? </h3>
-						<p>Si, ÁPPARCA cumple los requisitos de la ley de protección de datos y aplica los métodos más recientes para proteger los datos personales de nuestros clientes. No guardamos los datos de tarjetas de crédito/débito en nuestra base de datos. Los datos de la tarjeta se introduce directamente a la aplicación de La Caixa sin necesidad de grabarlos en nuestro sistema. </p>
+						<h3>¿Recibo notificaciones del sistema APPARCA? </h3>
+						<p>Sí:
+							<ul>
+								<li>10 minutos antes de alcanzar el tiempo máximo autorizado.</li>
+								<li>En caso de alguna incidencia con su tarjeta de crédito/débito.</li>
+								<li>Al finalizar una operación de estacionamiento se visualiza un ticket digital con los datos del mismo. </li>
+							</ul>
+							
+						</p>
 					</div>
 					<div data-role="collapsible" data-theme="c" data-content-theme="d">
 						<h3>¿Que hago si cambio el coche? </h3>
-						<p>Cambie la matrícula en menú cambio de datos personales del botón ajustes.</p>
+						<p>Cambie la matrícula mediante el botón de Ajustes ? Datos personales.</p>
 					</div>
 					<div data-role="collapsible" data-theme="c" data-content-theme="d">
 						<h3>¿Puedo pagar la multa con el sistema APPARCA? </h3>
 						<p>No.</p>
 					</div>
 					<div data-role="collapsible" data-theme="c" data-content-theme="d">
-						<h3>¿Recibo notificaciones del sistema APPARCA? </h3>
-						<p>Sí:
-						<ul>
-							<li>10 minutos antes de alcanzar el tiempo máximo autorizado.</li>
-							<li>En caso de alguna incidencia con su tarjeta de crédito/débito.</li>
-							<li>Al finalizar una operación de estacionamiento se visualiza un ticket digital con los datos del mismo. </li>
-						</ul>
+						<h3>¿Apparca puede ser utilizado por smarphones de operadoras extranjeras? </h3>
+						<p>Sí, con cualquier operador, con previo registro de los datos del usuario
 						</p>
-					</div>
-					<div data-role="collapsible" data-theme="c" data-content-theme="d">
-						<h3>¿Como se realiza el control?</h3>
-						<p>El control se realiza verificando la existencia de una operación de estacionamiento en curso en la BBDD de operaciones del sistema para la matrícula del coche estacionado que se comprueba. </p>
 					</div>
 				</div>
 			</div>
