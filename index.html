@@ -22,7 +22,7 @@
 
 
 <script type="text/javascript" charset="utf-8">
-		var accuracy=0;
+var accuracy=0;
 	var lat=0;
 	var lng=0;
 	var globales=Array();
@@ -72,7 +72,7 @@
     //
     var map;
     var fechaServidor=null;
-    var accuracy_min=80;
+    var accuracy_min=180;
     
     function checkRun() {
     //	
@@ -139,8 +139,10 @@
 		
 	});
 	
-	var directionsDisplay;
+	var directionsDisplay = new google.maps.DirectionsRenderer();
 	var directionsService = new google.maps.DirectionsService();
+	var start;
+	var end;
 	function calcRoute() {
 		//Primero comprobamos que haya un estacionamiento activo
 		if(intervalUpdateGasto==0) {
@@ -152,27 +154,47 @@
 		//Comprobamos el margen de error
 		if(parseInt(globales['accuracy'])>accuracy_min){
 			$('#errorAlert_header').html('Error');
-			$('#errorAlert_html').html('Tiene una cobertura GPS con poca se?al. Es posible que la ruta no sea la m?s correcta.');
+			$('#errorAlert_html').html('Tiene una cobertura GPS con poca se\00f1al. Es posible que la ruta no sea la m\xf3s correcta.');
 			emularClickPopup('#errorAlert');
 		}
-			var start = new google.maps.LatLng(globales['lat'],globales['lng']);
-			var end = marker.getPosition();
+			
+			directionsDisplay.setMap(null);
+			
+			navigator.geolocation.getCurrentPosition(function(position){
+				
+				globales['lat']=position.coords.latitude;
+				globales['lng']=position.coords.longitude;
+			});
+			
+			
+			
+			start = new google.maps.LatLng(globales['lat'],globales['lng']);
+			end = marker.getPosition();
 			var request = {
 				origin:start,
 				destination:end,
 				travelMode: google.maps.TravelMode.WALKING
 			};
-			directionsDisplay = new google.maps.DirectionsRenderer();
+			
+			
 			directionsDisplay.setMap(map);
 			directionsService.route(request, function(result, status) {
 				if (status == google.maps.DirectionsStatus.OK) {
 					directionsDisplay.setDirections(result);
+				}else {
+					alert("Problema")
 				}
 			});
+			
+			
+			
+			circle.setCenter(start);
+			
+			
 		
 	}
 	
-	
+	var circle;
 	
     function initialize(lat,lng,accuracy) {
 		/*globales['lat']="41.795232";
@@ -198,7 +220,7 @@
 			map: map
 		});
 				
-	   var circle = new google.maps.Circle({
+	   circle = new google.maps.Circle({
 			    center: latlng,
 			    radius: globales['accuracy'],
 			    map: map, //your map,
@@ -225,7 +247,7 @@
 	    }
 	    
 		
-		
+		intervalUpdateGasto=0;
 		
 		checkRun();
 		if(fechaServidor!=null)
