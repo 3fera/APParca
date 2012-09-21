@@ -50,11 +50,11 @@ var accuracy=0;
    		$(".btn-stop").hide();
 	  	$("#info").hide();
 	  	
-	  	$("#layer-mapa").css("height", $(window).height() - parseInt($(".botones").css("height") -  parseInt($(".info").css("height"))) + 5);
+        $("#layer-mapa").css("height", $(window).height() - 121 -  parseInt($(".info").css("height"))  +"px");
 	  	$("#periodoInactivo").css("left",($(window).width()-parseInt($("#periodoInactivo").css("width"))) - 80 + 'px');
 	  	
 	    $(window).resize(function(){
-        	$("#layer-mapa").css("height", $(window).height() - parseInt($(".botones").css("height") -  parseInt($(".info").css("height"))) + 5);
+        	$("#layer-mapa").css("height", $(window).height() - 121 -  parseInt($(".info").css("height"))  +"px");
         	$("#periodoInactivo").css("left",($(window).width()-parseInt($("#periodoInactivo").css("width"))) - 80 + 'px');
         	
         });
@@ -249,6 +249,8 @@ var accuracy=0;
 		
 		intervalUpdateGasto=0;
 		
+		$("#layer-mapa").css("height", $(window).height() - 121 -  53  +"px");
+
 		checkRun();
 		if(fechaServidor!=null)
 			setDiferenciaHora();		
@@ -834,7 +836,7 @@ var accuracy=0;
         </div>
         <div id="periodoInactivo" class="oculto">Periodo gratuito</div>
         <div class="info" id="info"></div>
-		<div class="botones" data-theme="a">
+		<div class="botones" id="botonera" data-theme="a">
 			<a href="" onclick="calcRoute()" class="btn-euros"></a>
 			<a href="" data-json="clickSearchZonas" data-json-data="getCoordsJSON()" data-json-destino="#info" class="btn-run"></a>
 			<a href="#confirmarStop" class="btn-stop" data-rel="dialog"></a>
