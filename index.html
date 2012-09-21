@@ -22,7 +22,7 @@
 
 
 <script type="text/javascript" charset="utf-8">
-var accuracy=0;
+	var accuracy=0;
 	var lat=0;
 	var lng=0;
 	var globales=Array();
@@ -50,11 +50,21 @@ var accuracy=0;
    		$(".btn-stop").hide();
 	  	$("#info").hide();
 	  	
-        $("#layer-mapa").css("height", $(window).height() - 121 -  parseInt($(".info").css("height"))  +"px");
+        if($(".info").css("display")!="none") {
+			$("#layer-mapa").css("height", $(window).height() - 121 -  53  +"px");
+		}
+		else {
+			$("#layer-mapa").css("height", $(window).height() - 100  +"px");
+		}
 	  	$("#periodoInactivo").css("left",($(window).width()-parseInt($("#periodoInactivo").css("width"))) - 80 + 'px');
 	  	
 	    $(window).resize(function(){
-        	$("#layer-mapa").css("height", $(window).height() - 121 -  parseInt($(".info").css("height"))  +"px");
+        	if($(".info").css("display")!="none") {
+				$("#layer-mapa").css("height", $(window).height() - 121 -  53  +"px");
+			}
+			else {
+				$("#layer-mapa").css("height", $(window).height() - 100  +"px");
+			}
         	$("#periodoInactivo").css("left",($(window).width()-parseInt($("#periodoInactivo").css("width"))) - 80 + 'px');
         	
         });
@@ -249,12 +259,13 @@ var accuracy=0;
 		
 		intervalUpdateGasto=0;
 		
-		if($(".info").height()>0) {
+		if($(".info").css("display")!="none") {
 			$("#layer-mapa").css("height", $(window).height() - 121 -  53  +"px");
 		}
 		else {
 			$("#layer-mapa").css("height", $(window).height() - 100  +"px");
 		}
+
 		checkRun();
 		if(fechaServidor!=null)
 			setDiferenciaHora();		
@@ -1026,7 +1037,7 @@ var accuracy=0;
 						</a>
 					</li>
 					<li>
-						<a href="#" data-json="salir" class="ui-link-inherit">
+						<a href="#" onClick="navigator.app.exitApp()" data-json="salir" class="ui-link-inherit">
 							<h3>Salir</h3>
 							<p>Cierra la sesión actual</p>
 						</a>
