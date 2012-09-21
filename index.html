@@ -249,8 +249,12 @@ var accuracy=0;
 		
 		intervalUpdateGasto=0;
 		
-		$("#layer-mapa").css("height", $(window).height() - 121 -  53  +"px");
-
+		if($(".info").height()>0) {
+			$("#layer-mapa").css("height", $(window).height() - 121 -  53  +"px");
+		}
+		else {
+			$("#layer-mapa").css("height", $(window).height() - 100  +"px");
+		}
 		checkRun();
 		if(fechaServidor!=null)
 			setDiferenciaHora();		
