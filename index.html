@@ -72,7 +72,7 @@ var accuracy=0;
     //
     var map;
     var fechaServidor=null;
-    var accuracy_min=180;
+    var accuracy_min=80;
     
     function checkRun() {
     //	
@@ -204,7 +204,7 @@ var accuracy=0;
     	globales['accuracy']=accuracy;
 		var latlng = new google.maps.LatLng(lat, lng);
 		var myOptions = {
-			zoom: 16,
+			zoom: 18,
 			center: latlng,
 			panControl: false,
 		    zoomControl: true,
@@ -440,6 +440,42 @@ var accuracy=0;
 	   	horaLimiteBool=true;
    }
 
+   function HtmlEncode(s)
+	{
+	  var el = document.createElement("div");
+	  el.innerText = el.textContent = s;
+	  s = el.innerHTML;
+	  return s;
+	}
+
+   function alert2(texto) {
+	   //alerta cerrada
+	   if(navigator.notification)
+		navigator.notification.alert(
+		    HtmlEncode(texto),     // mensaje (message)
+		    alertDismissed,         // funci?n 'callback' (alertCallback)
+		    'L\xedmite de tiempo',            // titulo (title)
+		    'Cerrar'                // nombre del bot?n (buttonName)
+		);
+	   else
+	   	alert(HtmlEncode(texto));
+   }
+
+    function limiteAlcanzado(){
+	   //alerta cerrada
+	   if(navigator.notification)
+		navigator.notification.alert(
+		    'Quedan 10 minutos para llegar al l\xedmite de tiempo',     // mensaje (message)
+		    alertDismissed,         // funci?n 'callback' (alertCallback)
+		    'L\xedmite de tiempo',            // titulo (title)
+		    'Cerrar'                // nombre del bot?n (buttonName)
+		);
+	   else
+	   	alert("Quedan 10 minutos para llegar al l\xedmite de tiempo");
+	   	
+	   	
+	   	horaLimiteBool=true;
+   }
 	
    function diferenciaFechas (CadenaFecha,flag) {  
 	     
@@ -504,6 +540,20 @@ var accuracy=0;
    }
    
    function updateCounter(precioHora, limite){
+   
+   		//Hemos llegado al límite?
+		if( time_segundos>=limite*60 ) {
+			if(!limiteAlcanzado) {
+				limiteAlcanzado=true;
+				alert2("Ha alcanzado el l\xedmite de tiempo en su estacionamiento.");
+   				printTime(precioHora, limite*60, limite);
+   			}
+   			limiteAlcanzado=true;
+   			return 0;
+
+		}
+
+   
    		if(!checkHorario()) {
    			
    			marcarPeriodoInactivo();
@@ -520,16 +570,7 @@ var accuracy=0;
 	   		limiteAlcanzado=false;
    		}
    		
-   		//Hemos llegado al l?mite?
-		if( time_segundos>limite*60 ) {
-			if(!limiteAlcanzado) {
-   				printTime(precioHora, limite*60, limite);
-   			}
-   			limiteAlcanzado=true;
-   			return 0;
-
-		}
-   		
+   		   		
    		precioMin = (precioHora/60);
    		
    		time_segundos=diferenciaFechas(fechaInicio);
@@ -539,13 +580,11 @@ var accuracy=0;
    
    function printTime(precioHora, tiempo, limite) {
 	   
-	   precioMin = (precioHora/60);
-   		
-   		
-   		
-   		
-   		if((tiempo)>=((limite*60)-600) && !horaLimiteBool) {
-   			horaLimite();
+	    precioMin = (precioHora/60);
+
+   		if((tiempo)>=((limite*60)-600) && !horaLimiteBool ) {
+   			if(!limiteAlcanzado)
+   				horaLimite();
 	   		precioT = limite*precioMin;
    		} else {
    			fix = tiempo + 60;
@@ -868,7 +907,7 @@ var accuracy=0;
 	
 	<!-- ConfirmarStop -->
 	<div data-role="dialog" data-transition="none"  id="confirmarStop" class="ui-corner-all">
-		<div data-role="header" data-theme="a"><h1>Parar</h1></div>
+		<div data-role="header" data-theme="a"><h1>Finalizar Aparcamiento</h1></div>
 		<div data-role="content" data-theme="c">
 			<div class="content">
 			¿Desea finalizar su aparcamiento?
@@ -981,7 +1020,7 @@ var accuracy=0;
 						</a>
 					</li>
 					<li>
-						<a href="#" onClick="navigator.app.exitApp()" data-json="salir" class="ui-link-inherit">
+						<a href="#" data-json="salir" class="ui-link-inherit">
 							<h3>Salir</h3>
 							<p>Cierra la sesión actual</p>
 						</a>
