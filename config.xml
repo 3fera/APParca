@@ -37,6 +37,6 @@
 	<preference name="orientation" value="portrait" />
 	
 	
-	<gap:plugin name="phonegap-status-bar-notification" />
+	<!--<gap:plugin name="phonegap-status-bar-notification" />-->
 	
 </widget> 
