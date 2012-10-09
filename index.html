@@ -142,30 +142,29 @@
 	});
 	
 	$('#login').live("pagehide", function(event, ui) {
-		if(ui.nextPage.attr("id")=="home"){
-			if(navigator.geolocation) {
-				navigator.geolocation.getCurrentPosition(function(position){
-					initialize(position.coords.latitude,position.coords.longitude, position.coords.accuracy);
-				});
-			}
-			else {
-				console.log("No hay acceso a geolocation");
-			}
+		if(ui.nextPage.attr("id")=="home")
+		if(navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(function(position){
+				initialize(position.coords.latitude,position.coords.longitude, position.coords.accuracy);
+			});
+		}
+		else {
+			console.log("No hay acceso a geolocation");
 		}
 		
 	});
 	
 	$('#registro').live("pagehide", function(event, ui) {
-		if(ui.nextPage.attr("id")=="home") {}
-			if(navigator.geolocation) {
-				navigator.geolocation.getCurrentPosition(function(position){
-					initialize(position.coords.latitude,position.coords.longitude, position.coords.accuracy);
-				});
-			}
-			else {
-				console.log("No hay acceso a geolocation");
-			}
+		if(ui.nextPage.attr("id")=="home")
+		if(navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(function(position){
+				initialize(position.coords.latitude,position.coords.longitude, position.coords.accuracy);
+			});
 		}
+		else {
+			console.log("No hay acceso a geolocation");
+		}
+		
 		
 	});
 	
