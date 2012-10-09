@@ -22,7 +22,7 @@
 
 
 <script type="text/javascript" charset="utf-8">
-		var accuracy=0;
+	var accuracy=0;
 	var lat=0;
 	var lng=0;
 	var globales=Array();
@@ -73,22 +73,11 @@
             $(this).dialog('close');
         });
 
-        //Refresco cuando se abre la app sin estar cerrada
-        document.addEventListener("resume", onResume, false);
         
 
     }
-    //Funcion de Refresco cuando se abre la app sin estar cerrada
-    function onResume() {
-    
-    	if(navigator.geolocation) {
-			navigator.geolocation.getCurrentPosition(function(position){
-				initialize(position.coords.latitude,position.coords.longitude, position.coords.accuracy);
-			});
-		}
-    
-    }
-    
+
+
     // onSuccess Geolocation
     //
     var map;
@@ -129,7 +118,6 @@
    	}
 
     $('#home').live("pagecreate", function() {
-    	
 		if(navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(position){
 				initialize(position.coords.latitude,position.coords.longitude, position.coords.accuracy);
