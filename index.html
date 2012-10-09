@@ -39,7 +39,7 @@
    function onDeviceReady() {
    		//navigator.geolocation.getCurrentPosition(onSuccess, onError);
    		
-   		
+   		console.log("Dispositivo preparado");
    		jQuery.fx.off = true;
         
          $.extend(  $.mobile , {
@@ -74,7 +74,7 @@
         });
 
         
-
+        console.log("Alto del mapa: ".$("#layer-mapa").height());
         //Refresco cuando se abre la app sin estar cerrada
         document.addEventListener("resume", onResume, false);
         
@@ -82,7 +82,7 @@
     }
     //Funcion de Refresco cuando se abre la app sin estar cerrada
     function onResume() {
-    
+    	console.log("Recargamos mapa por reabrir app");
     	if(navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(position){
 				initialize(position.coords.latitude,position.coords.longitude, position.coords.accuracy);
@@ -131,6 +131,7 @@
    	}
 
     $('#home').live("pagecreate", function() {
+    	console.log("Recargamos mapa por crear app");
 		if(navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(position){
 				initialize(position.coords.latitude,position.coords.longitude, position.coords.accuracy);
@@ -144,6 +145,7 @@
 	});
 	
 	$('#login').live("pagehide", function(event, ui) {
+		console.log("Recargamos mapa por salir de login");
 		if(ui.nextPage.attr("id")=="home")
 		if(navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(position){
@@ -157,6 +159,7 @@
 	});
 	
 	$('#registro').live("pagehide", function(event, ui) {
+		console.log("Recargamos mapa por salir de registro");
 		if(ui.nextPage.attr("id")=="home")
 		if(navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(position){
@@ -227,6 +230,7 @@
 	var circle;
 	
     function initialize(lat,lng,accuracy) {
+    	console.log("Inicializamos todo el mapa");
 		/*globales['lat']="41.795232";
     	globales['lng']="3.042054";*/
     	globales['lat']=lat;
