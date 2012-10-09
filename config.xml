@@ -6,7 +6,7 @@
 
 	<name>APParca</name>
 	
-	<preference name="phonegap-version" value="1.8.1" />
+	<preference name="phonegap-version" value="1.8.1"/>
 	
 	<description>
 		Aplicación para estacionar en zonas de pago.
@@ -17,27 +17,27 @@
 		3fera
 	</author>
 
-	<feature name="http://api.phonegap.com/1.0/geolocation" />
+	<feature name="http://api.phonegap.com/1.0/geolocation"/>
 	<feature name="http://api.phonegap.com/1.0/network"/>
 	<feature name="http://api.phonegap.com/1.0/notification"/>
 
-	<gap:splash src="assets/splash/android/splash_320.png" />
+	<gap:splash src="assets/splash/android/splash_320.png"/>
 
-	<icon src="assets/icons/android/ldpi.png" gap:platform="android" gap:density="ldpi" />
-	<icon src="assets/icons/android/mdpi.png" gap:platform="android" gap:density="mdpi" />
-	<icon src="assets/icons/android/hdpi.png" gap:platform="android" gap:density="hdpi" />
+	<icon src="assets/icons/android/ldpi.png" gap:platform="android" gap:density="ldpi"/>
+	<icon src="assets/icons/android/mdpi.png" gap:platform="android" gap:density="mdpi"/>
+	<icon src="assets/icons/android/hdpi.png" gap:platform="android" gap:density="hdpi"/>
 	
 	
-	<gap:splash src="assets/splash/android/ldpi.jpg" gap:platform="android" gap:density="ldpi" />
-	<gap:splash src="assets/splash/android/mdpi.jpg" gap:platform="android" gap:density="mdpi" />
-	<gap:splash src="assets/splash/android/hdpi.jpg" gap:platform="android" gap:density="hdpi" />
-	<gap:splash src="assets/splash/android/xldpi.jpg" gap:platform="android" gap:density="xldpi" />
+	<gap:splash src="assets/splash/android/ldpi.jpg" gap:platform="android" gap:density="ldpi"/>
+	<gap:splash src="assets/splash/android/mdpi.jpg" gap:platform="android" gap:density="mdpi"/>
+	<gap:splash src="assets/splash/android/hdpi.jpg" gap:platform="android" gap:density="hdpi"/>
+	<gap:splash src="assets/splash/android/xldpi.jpg" gap:platform="android" gap:density="xldpi"/>
 	
-	<preference name="android-minSdkVersion" value="7" />
+	<preference name="android-minSdkVersion" value="7"/>
 
-	<preference name="orientation" value="portrait" />
+	<preference name="orientation" value="portrait"/>
 	
 	
-	<!--<gap:plugin name="phonegap-status-bar-notification" />-->
+	<!--<gap:plugin name="phonegap-status-bar-notification"/>-->
 	
 </widget> 
