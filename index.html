@@ -84,9 +84,7 @@
 				initialize(position.coords.latitude,position.coords.longitude, position.coords.accuracy);
 			});
 		}
-		else {
-			console.log("No hay acceso a geolocation");
-		}
+    
     }
     
     // onSuccess Geolocation
@@ -135,9 +133,7 @@
 				initialize(position.coords.latitude,position.coords.longitude, position.coords.accuracy);
 			});
 		}
-		else {
-			console.log("No hay acceso a geolocation");
-		}
+		
 		
 	});
 	
@@ -148,9 +144,7 @@
 				initialize(position.coords.latitude,position.coords.longitude, position.coords.accuracy);
 			});
 		}
-		else {
-			console.log("No hay acceso a geolocation");
-		}
+		
 		
 	});
 	
@@ -160,9 +154,6 @@
 			navigator.geolocation.getCurrentPosition(function(position){
 				initialize(position.coords.latitude,position.coords.longitude, position.coords.accuracy);
 			});
-		}
-		else {
-			console.log("No hay acceso a geolocation");
 		}
 		
 		
