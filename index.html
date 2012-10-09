@@ -30,15 +30,16 @@
 	// Wait for PhoneGap to load
 	//
 	document.addEventListener("deviceready", onDeviceReady, false);
-	/*$(document).ready(function() {
+	$(document).ready(function() {
 		reloadEvents();	           		   	
-   });*/
+   });
    // PhoneGap is ready
    //
    
    function onDeviceReady() {
    		//navigator.geolocation.getCurrentPosition(onSuccess, onError);
-
+   		
+   		
    		jQuery.fx.off = true;
         
          $.extend(  $.mobile , {
@@ -64,7 +65,8 @@
 			else {
 				$("#layer-mapa").css("height", $(window).height() - 100  +"px");
 			}
-        	$("#periodoInactivo").css("left",($(window).width()-parseInt($("#periodoInactivo").css("width"))) - 80 + 'px'); 	
+        	$("#periodoInactivo").css("left",($(window).width()-parseInt($("#periodoInactivo").css("width"))) - 80 + 'px');
+        	
         });
 	
         $('#selectZonas').on("pagebeforeload", function() {
@@ -73,7 +75,7 @@
 
         //Refresco cuando se abre la app sin estar cerrada
         document.addEventListener("resume", onResume, false);
-        reloadEvents();
+        
 
     }
     //Funcion de Refresco cuando se abre la app sin estar cerrada
@@ -217,7 +219,6 @@
 	var circle;
 	
     function initialize(lat,lng,accuracy) {
-    	console.log("Lat: "+lat+" long: "+lng+" accuracy: "+accuracy);
 		/*globales['lat']="41.795232";
     	globales['lng']="3.042054";*/
     	globales['lat']=lat;
