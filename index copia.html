@@ -4,7 +4,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=320, initial-scale=1">
-	<title>Park and Click</title>ss
+	<title>Park and Click</title>
 	<meta name="layout" content="mobile"/>
 	
 	
@@ -83,11 +83,10 @@
     //Funcion de Refresco cuando se abre la app sin estar cerrada
     function onResume() {
     	console.log("Recargamos mapa por reabrir app");
-    	if(navigator.geolocation) {
-    		
+    	if(navigator.geolocation) {    		
 			navigator.geolocation.getCurrentPosition(function(position){
 				initialize(position.coords.latitude,position.coords.longitude, position.coords.accuracy);
-			});
+			}, onErrorGeo );
 		}
 		else {
 			console.log("problema con la geolocalizacion");
@@ -133,13 +132,17 @@
    		}, "json");
    		
    	}
-
+   	function onErrorGeo(error) {
+        alert2('code: '    + error.code    + '\n' +
+              'message: ' + error.message + '\n');	
+   	}
+   	
     $('#home').live("pagecreate", function() {
     	console.log("Recargamos mapa por crear app");
 		if(navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(position){
 				initialize(position.coords.latitude,position.coords.longitude, position.coords.accuracy);
-			});
+			}, onErrorGeo);
 		}
 		else {
 			console.log("problema con la geolocalizacion");
@@ -155,7 +158,7 @@
 		if(navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(position){
 				initialize(position.coords.latitude,position.coords.longitude, position.coords.accuracy);
-			});
+			}, onErrorGeo);
 		}
 		else {
 			console.log("problema con la geolocalizacion");
@@ -170,7 +173,7 @@
 		if(navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(position){
 				initialize(position.coords.latitude,position.coords.longitude, position.coords.accuracy);
-			});
+			}, onErrorGeo);
 		}else {
 			console.log("problema con la geolocalizacion");
 			alert2("No hemos podido localizar su posición.");
