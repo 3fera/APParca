@@ -22,7 +22,7 @@
 
 
 <script type="text/javascript" charset="utf-8">
-	var accuracy=0;
+var accuracy=0;
 	var lat=0;
 	var lng=0;
 	var globales=Array();
@@ -222,7 +222,7 @@
         alert2("No podemos determinar su ubicación. Debería revisar su configuración de posicionamiento GPS.");	
    	}
     function initialize(lat,lng,acurracy) {
-    
+    	//alert("cargamos el mapa")
     	
     	//Si no hay cambios en la posicion no refrescamos el mapa
     	if(lat==globales['lat'] && lng==globales['lng']) return;
@@ -619,14 +619,15 @@
    function printTime(precioHora, tiempo, limite) {
 	   
 	    precioMin = (precioHora/60);
+	    precioSeg = (precioMin/60);
 
    		if((tiempo)>=((limite*60)-600) && !horaLimiteBool ) {
    			if(!limiteAlcanzado)
    				horaLimite();
 	   		precioT = limite*precioMin;
    		} else {
-   			fix = tiempo + 60;
-	   		precioT = precioMin * (Math.floor(fix/60));
+   			fix = tiempo;
+	   		precioT = precioSeg * (Math.floor(fix));
    		}
    		
    		var precioTT = precioT.toFixed(2);
@@ -645,7 +646,7 @@
 	   		var tiempo2 = formatoT(horas) + ":" + formatoT(minutos) + ":" + formatoT(segundos);
 	   		
 	   		fix = tiempo;
-	   		precioT = precioMin * (Math.floor(fix/60));
+	   		precioT = precioSeg * (Math.floor(fix));
 	   		precioTT = precioT.toFixed(2);
 		}
 
@@ -1277,7 +1278,7 @@
 		</div>
 	</div>
 	
-	<!-- Alerta -->
+	<!-- ERROR -->
 	<div data-role="page" data-transition="none"  id="errorAlert" class="ui-corner-all">
 		<div data-role="header" data-theme="a">
 			<h1 id="errorAlert_header">dialogo con colores configurados</h1>
@@ -1295,6 +1296,8 @@
 		</div>	   
 		
 	</div>
+
+	
 	
 	<a data-rel="dialog" id="emulClick" href="#" ></a>		
 	<a href="" data-json="updateGasto" id="updateGasto" style="display:none"></a>
