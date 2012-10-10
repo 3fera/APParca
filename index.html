@@ -31,15 +31,15 @@
 	//
 	document.addEventListener("deviceready", onDeviceReady, false);
 	$(document).ready(function() {
-			reloadEvents();	           		   	
-	   });
+		reloadEvents();	           		   	
+   });
    // PhoneGap is ready
    //
    
    function onDeviceReady() {
    		//navigator.geolocation.getCurrentPosition(onSuccess, onError);
    		
-   		console.log("Dispositivo preparado");
+   		
    		jQuery.fx.off = true;
         
          $.extend(  $.mobile , {
@@ -73,28 +73,23 @@
             $(this).dialog('close');
         });
 
-        height1=$("#layer-mapa").height();
-        console.log("Alto del mapa: "+height1);
         //Refresco cuando se abre la app sin estar cerrada
         document.addEventListener("resume", onResume, false);
         
 
     }
+    
     //Funcion de Refresco cuando se abre la app sin estar cerrada
     function onResume() {
-    	console.log("Recargamos mapa por reabrir app");
+    
     	if(navigator.geolocation) {
-    		
 			navigator.geolocation.getCurrentPosition(function(position){
 				initialize(position.coords.latitude,position.coords.longitude, position.coords.accuracy);
-			}, onErrorGeo );
-		}
-		else {
-			console.log("problema con la geolocalizacion");
+			},onErrorGeo);
 		}
     
-	}
-
+    }
+    
     // onSuccess Geolocation
     //
     var map;
@@ -133,52 +128,35 @@
    		}, "json");
    		
    	}
-   	function onErrorGeo(error) {
-        alert2('code: '    + error.code    + '\n' +
-              'message: ' + error.message + '\n');	
-   	}
-   	
-    $('#home').live("pagecreate", function() {
-    	console.log("Recargamos mapa por crear app");
+
+    $('#home').live("pageshow", function() {
+    	
 		if(navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(position){
 				initialize(position.coords.latitude,position.coords.longitude, position.coords.accuracy);
-			}, onErrorGeo);
-		}
-		else {
-			console.log("problema con la geolocalizacion");
-			alert2("No hemos podido localizar su posición.");
+			},onErrorGeo,  {maximumAge:60000, timeout: 2000});
 		}
 		
 		
 	});
 	
 	$('#login').live("pagehide", function(event, ui) {
-		console.log("Recargamos mapa por salir de login");
 		if(ui.nextPage.attr("id")=="home")
 		if(navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(position){
 				initialize(position.coords.latitude,position.coords.longitude, position.coords.accuracy);
-			}, onErrorGeo);
+			},onErrorGeo,  {maximumAge:60000, timeout: 2000});
 		}
-		else {
-			console.log("problema con la geolocalizacion");
-			alert2("No hemos podido localizar su posición.");
-		}
+		
 		
 	});
 	
 	$('#registro').live("pagehide", function(event, ui) {
-		console.log("Recargamos mapa por salir de registro");
 		if(ui.nextPage.attr("id")=="home")
 		if(navigator.geolocation) {
-			navigator.geolocation.getCurrentPosition(function(position){
-				initialize(position.coords.latitude,position.coords.longitude, position.coords.accuracy);
-			}, onErrorGeo);
-		}else {
-			console.log("problema con la geolocalizacion");
-			alert2("No hemos podido localizar su posición.");
-			
+				navigator.geolocation.getCurrentPosition(function(position){
+					initialize(position.coords.latitude,position.coords.longitude, position.coords.accuracy);
+				},onErrorGeo,  {maximumAge:60000, timeout: 2000});
 		}
 		
 		
@@ -240,14 +218,21 @@
 	}
 	
 	var circle;
-	
-    function initialize(lat,lng,accuracy) {
-    	console.log("Inicializamos todo el mapa");
+	function onErrorGeo(error) {
+        alert2("No podemos determinar su ubicación. Debería revisar su configuración de posicionamiento GPS.");	
+   	}
+    function initialize(lat,lng,acurracy) {
+    	alert("cargamos el mapa")
+    	
+    	//Si no hay cambios en la posicion no refrescamos el mapa
+    	if(lat==globales['lat'] && lng==globales['lng']) return;
+    	
 		/*globales['lat']="41.795232";
     	globales['lng']="3.042054";*/
     	globales['lat']=lat;
     	globales['lng']=lng;
-    	globales['accuracy']=accuracy;
+    	globales['accuracy']=acurracy;
+    	
 		var latlng = new google.maps.LatLng(lat, lng);
 		var myOptions = {
 			zoom: 18,
@@ -783,7 +768,7 @@
 		<script>
 			$('#login').live('pageshow', function () {
 				//Check session status
-		    	$.post("http://clients.3fera.com/aparca///json/sessionStatus/", "1", function(data, textStatus) {
+		    	$.post("http://clients.3fera.com/aparca//json/sessionStatus/", "1", function(data, textStatus) {
 		   			if(data.js)
 		            	eval(data.js);
 		   		}, "json");
@@ -826,11 +811,75 @@
 					<label for="name-a" class="ui-input-text">Matrícula:</label>
 					<input type="text" id="regMatricula" value="" placeholder="Matrícula" data-theme="c" class="ui-input-text ui-body-a ui-corner-all ui-shadow-inset">
 				</div>
+
+				<button type="submit" data-theme="b" data-json="registrar" data-json-data="getRegistroJSON()"  class="boton_grande"  class="ui-btn">Registrar</button>
+			</div>
+		</div>	   
+	</div>
+	
+	<!-- TPV -->
+	<div data-role="page" data-transition="none"  id="tpv" class="ui-corner-all">	
+		<div data-role="header" data-theme="a" data-position="inline">
+			<h1>Tarjeta de crédito</h1>
+		</div>
+		<div data-role="content" data-theme="c">
+			<div class="ui-body ui-body-d">
+				A continuación le emitiremos un cargo de 0.01? para verificar su tarjeta de crédito y asociarla con el servicio.<br>
+				<i>Apparca no almacenará ningún dato de tu tarjeta de credito.</i>
+				<div id="formTPV"></div>
+			</div>
+		</div>
+		<script>
+			$('#tpv').live('pageshow', function () {
+				$.post("http://clients.3fera.com/aparca//json/genToken", "1", function(data, textStatus) {
+	       			console.dir(data);	
+	       			if(data.js)
+		            	eval(data.js);
+	       		}, "json");
+			});	
+		</script>
+	</div>
+	
+	<!-- TPV OK -->
+	<div data-role="page" data-transition="none"  id="tpvOk" class="ui-corner-all">	
+		<div data-role="header" data-theme="a" data-position="inline">
+			<h1>Tarjeta asociada</h1>
+		</div>
+		<div data-role="content" data-theme="c">
+			<div class="ui-body ui-body-d">
+				La tarjeta de crédito ha sido asociada a tu cuenta satisfactoriamente. <br>
+				¡Ya puedes empezar a usar Apparca!
+				<a href="#home" data-role="button" data-theme="b" class="boton_grande">Aceptar</a>
+			</div>
+		</div>
+	</div>
+	
+	<!-- TPV BAD -->
+	<div data-role="page" data-transition="none"  id="tpvBad" class="ui-corner-all">	
+		<div data-role="header" data-theme="a" data-position="inline">
+			<h1>Error al asociar la tarjeta</h1>
+		</div>
+		<div data-role="content" data-theme="c">
+			<div class="ui-body ui-body-d">
+				Ha habido un problema al intentar asociar esta tarjeta de crédito.<br>
+				Pulsa en volver para introducir de nuevo los datos.
+				<a href="#tpv" data-role="button" data-theme="b" class="boton_grande">Volver</a>
+			</div>
+		</div>
+	</div>
+	
+	<!-- Tarjeta -->
+	<div data-role="page" data-transition="none"  id="tarjeta" class="ui-corner-all">	
+		<div data-role="header" data-theme="a" data-position="inline">
+			<h1>Tarjeta de crédito</h1>
+		</div>
+		<div data-role="content" data-theme="c">
+			<div class="ui-body ui-body-d">
 				<div data-role="fieldcontain" class="ui-field-contain ui-body ui-br">
-					<label for="name-a" class="ui-input-text">Nº tarjeta de crédito:</label>
-					<input type="text" id="regTarjeta" value="" placeholder="Nº tarjeta de crédito" data-theme="c" class="ui-input-text ui-body-a ui-corner-all ui-shadow-inset">
-				</div>
-				<div data-role="fieldcontain" class="ui-field-contain ui-body ui-br">
+					<div data-role="fieldcontain" class="ui-field-contain ui-body ui-br">
+						<label for="name-a" class="ui-input-text">Nº tarjeta de crédito:</label>
+						<input type="text" id="regTarjeta" value="" placeholder="Nº tarjeta de crédito" data-theme="c" class="ui-input-text ui-body-a ui-corner-all ui-shadow-inset">
+					</div>
 					<fieldset data-role="controlgroup">
 						<legend>Fecha caducidad</legend>
 						<label for="regMes">Mes</label>
@@ -864,19 +913,10 @@
 					   </select>
 					</fieldset>
 				</div>
-
-				<button type="submit" data-theme="b" data-json="registrar" data-json-data="getRegistroJSON()"  class="boton_grande"  class="ui-btn">Registrar</button>
+				<button type="submit" data-theme="b" data-json="registrarTarjeta" data-json-data="getTarjetaJSON()"  class="boton_grande"  class="ui-btn">Continuar</button>
 			</div>
 		</div>	   
 	</div>
-	<script>
-		$('#registro').live('pageshow', function () {
-			$.post("http://clients.3fera.com/aparca///json/getVehiculos/", "1", function(data, textStatus) {
-       			if(data.js)
-	            	eval(data.js);
-       		}, "json");
-		});	
-	</script>
 
 	<!-- Home -->
 	<div data-role="page" data-transition="none"  id="home" style="height: 100%;" class="details-page" data-prefetch>
@@ -897,7 +937,7 @@
 			var deviceReady = 0;
 			$('#home').live('pageshow', function () {
 				//Check session status
-				$.post("http://clients.3fera.com/aparca///json/checkSession/", "1", function(data, textStatus) {
+				$.post("http://clients.3fera.com/aparca//json/checkSession/", "1", function(data, textStatus) {
 					if(data.js)
 			        	eval(data.js);
 				}, "json");
@@ -1107,7 +1147,7 @@
 				//Loading
 				$.mobile.showPageLoadingMsg();
 	        	//Get vehicles
-	        	$.post("http://clients.3fera.com/aparca///json/getVehiculos/", "1", function(data, textStatus) {
+	        	$.post("http://clients.3fera.com/aparca//json/getVehiculos/", "1", function(data, textStatus) {
 	       			if(data.js)
 		            	eval(data.js);
 		            $('#listaVehiculos').listview('refresh');
@@ -1134,7 +1174,7 @@
 				//Loading
 				$.mobile.showPageLoadingMsg();
 	        	//Get vehicles
-	        	$.post("http://clients.3fera.com/aparca///json/getPagos/", "1", function(data, textStatus) {
+	        	$.post("http://clients.3fera.com/aparca//json/getPagos/", "1", function(data, textStatus) {
 	       			if(data.js)
 		            	eval(data.js);
 		            $('#listaPagos').listview('refresh') 
@@ -1169,7 +1209,7 @@
 				//Loading
 				$.mobile.showPageLoadingMsg();
 	        	//Get vehicles
-	        	$.post("http://clients.3fera.com/aparca///json/getPerfil/", "1", function(data, textStatus) {
+	        	$.post("http://clients.3fera.com/aparca//json/getPerfil/", "1", function(data, textStatus) {
 	       			if(data.js)
 		            	eval(data.js);
 	       		}, "json");
