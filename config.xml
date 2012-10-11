@@ -6,7 +6,7 @@
 
 	<name>APParca</name>
 	
-	<preference name="phonegap-version" value="1.8.1"/>
+	<preference name="phonegap-version" value="2.0.0"/>
 	
 	<description>
 		Aplicación para estacionar en zonas de pago.
