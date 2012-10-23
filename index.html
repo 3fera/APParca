@@ -22,7 +22,7 @@
 
 
 <script type="text/javascript" charset="utf-8">
-var accuracy=0;
+	var accuracy=0;
 	var lat=0;
 	var lng=0;
 	var globales=Array();
@@ -234,9 +234,9 @@ var accuracy=0;
     	globales['accuracy']=acurracy;
     	
 		var latlng = new google.maps.LatLng(lat, lng);
-		var myOptions = { 
+		var myOptions = {
 			zoom: 18,
-			center: latlng, 
+			center: latlng,
 			panControl: false,
 		    zoomControl: true,
 		    scaleControl: true,
@@ -1018,6 +1018,24 @@ var accuracy=0;
 			</table>
 
 		</div>	   
+	</div>
+	
+	<!-- Pago -->
+	<div data-role="page" data-transition="none" id="pago" class="ui-corner-all">
+		
+	</div>
+	
+	<!-- Pago OK -->
+	<div data-role="page" data-transition="none" id="pagoOk" class="ui-corner-all">	
+		<script>
+			$('#pagoOk').live('pageshow', function () {
+				$.post("http://clients.3fera.com/aparca//json/pagoOkTiket", "1", function(data, textStatus) {
+	       			console.dir(data);	
+	       			if(data.js)
+		            	eval(data.js);
+	       		}, "json");
+			});	
+		</script>
 	</div>
 	
 	<!-- showTiketStop -->
