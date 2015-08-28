@@ -85,7 +85,7 @@
     	if(navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(position){
 				initialize(position.coords.latitude,position.coords.longitude, position.coords.accuracy);
-			},onErrorGeo);
+			},onErrorGeo, { maximumAge: 3000, timeout: 5000, enableHighAccuracy: true });
 		}
     
     }
@@ -134,7 +134,7 @@
 		if(navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(position){
 				initialize(position.coords.latitude,position.coords.longitude, position.coords.accuracy);
-			},onErrorGeo,  {maximumAge:60000, timeout: 2000});
+			},onErrorGeo,  {maximumAge:60000, timeout: 2000, enableHighAccuracy: true }});
 		}
 		
 		
@@ -145,7 +145,7 @@
 		if(navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(function(position){
 				initialize(position.coords.latitude,position.coords.longitude, position.coords.accuracy);
-			},onErrorGeo,  {maximumAge:60000, timeout: 2000});
+			},onErrorGeo,  {maximumAge:60000, timeout: 2000, enableHighAccuracy: true }});
 		}
 		
 		
@@ -156,7 +156,7 @@
 		if(navigator.geolocation) {
 				navigator.geolocation.getCurrentPosition(function(position){
 					initialize(position.coords.latitude,position.coords.longitude, position.coords.accuracy);
-				},onErrorGeo,  {maximumAge:60000, timeout: 2000});
+				},onErrorGeo,  {maximumAge:60000, timeout: 2000, enableHighAccuracy: true }});
 		}
 		
 		
@@ -219,7 +219,7 @@
 	
 	var circle;
 	function onErrorGeo(error) {
-        alert2("No podemos determinar su ubicación. Debería revisar su configuración de posicionamiento GPS.");	
+        alert2("No podemos determinar su ubicación. Debería revisar su configuración de posicionamiento GPS. " + error);	
    	}
     function initialize(lat,lng,acurracy) {
     	//alert("cargamos el mapa")
