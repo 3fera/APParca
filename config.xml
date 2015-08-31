@@ -1,4 +1,4 @@
-<widget xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0" id="com.tresfera.apparca" version="1.0.0">
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0" id="com.tresfera.apparcar" version="1.0.0">
   <name>APParca</name>  
   <description>
     Aplicación para estacionar en zonas de pago.
