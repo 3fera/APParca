@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=320, initial-scale=1">
+    <title>Park and Click</title>
+    <meta name="layout" content="mobile"/>
+    
+    
+    <script src="./assets/js/cordova-2.0.0.js"></script>
+<!--    <script src="./assets/js/phonegap-status-bar-notification.js"></script>-->
+    
+    <link rel="stylesheet" href="./assets/css/jquery.mobile-1.1.0.css" />
+    <script src="./assets/js/jquery-1.7.1.min.js"></script>
+    <script src="./assets/js/jquery.mobile-1.1.0.js"></script>
+    <script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=true"></script>
+    
+    
+ 
+    <link href='./assets/css/style.css' rel='stylesheet' type='text/css' />  
+
+
+<script type="text/javascript" charset="utf-8">
+    var accuracy=0;
+    var lat=0;
+    var lng=0;
+    var globales=Array();
+    var marker;
+    // Wait for PhoneGap to load
+    //
+    document.addEventListener("deviceready", onDeviceReady, false);
+    $(document).ready(function() {
+        reloadEvents();                     
+   });
+   // PhoneGap is ready
+   //
+   
+   function onDeviceReady() {
+        //navigator.geolocation.getCurrentPosition(onSuccess, onError);
+        
+        
+        jQuery.fx.off = true;
+        
+         $.extend(  $.mobile , {
+            defaultPageTransition:"none",
+            defaultDialogTransition:"none"
+        });
+        
+        $(".btn-stop").hide();
+        $("#info").hide();
+        
+        if($(".info").css("display")!="none") {
+            $("#layer-mapa").css("height", $(window).height() - 121 -  53  +"px");
+        }
+        else {
+            $("#layer-mapa").css("height", $(window).height() - 100  +"px");
+        }
+        $("#periodoInactivo").css("left",($(window).width()-parseInt($("#periodoInactivo").css("width"))) - 80 + 'px');
+        
+        $(window).resize(function(){
+            if($(".info").css("display")!="none") {
+                $("#layer-mapa").css("height", $(window).height() - 121 -  53  +"px");
+            }
+            else {
+                $("#layer-mapa").css("height", $(window).height() - 100  +"px");
+            }
+            $("#periodoInactivo").css("left",($(window).width()-parseInt($("#periodoInactivo").css("width"))) - 80 + 'px');
+            
+        });
+    
+        $('#selectZonas').on("pagebeforeload", function() {
+            $(this).dialog('close');
+        });
+
+        //Refresco cuando se abre la app sin estar cerrada
+        document.addEventListener("resume", onResume, false);
+        
+
+    }
+    
+    //Funcion de Refresco cuando se abre la app sin estar cerrada
+    function onResume() {
+    
+        geolocationInit()
+    
+    }
+    
+    // onSuccess Geolocation
+    //
+    var map;
+    var fechaServidor=null;
+    var accuracy_min=80;
+    
+    function checkRun() {
+    //  
+    
+        //comprobamos si hay algun estacionamiento activo con este usuario...
+        $.post("http://clients.3fera.com/aparca/json/checkRun/", "1", function(data, textStatus) {
+            //data contains the JSON object
+            //textStatus contains    the status: success, error, etc
+            if(data==null) return 0;
+
+            if(data.destino) {
+                destino=$(data.destino);
+            }else{
+                destino = null; 
+            }
+            //Si existe destino
+            if(destino!=null) {
+                    destino.fadeOut(500, function () {
+                    destino.html(data.html)
+                    if(data.html)   
+                        destino.fadeIn();
+                    if(data.js)
+                        eval(data.js);
+                    //alert("entra")
+                });
+            }else {
+                if(data.js)
+                    eval(data.js);
+            }
+
+        }, "json");
+        
+    }
+    function geolocationInit() {
+        if(navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position){
+                initialize(position.coords.latitude,position.coords.longitude, position.coords.accuracy);
+            },onErrorGeo,  {maximumAge:Infinity, timeout: 20000, enableHighAccuracy: false});
+        }
+    }
+    $('#home').live("pageshow", function() {
+        
+        geolocationInit()
+        
+    });
+    
+    $('#login').live("pagehide", function(event, ui) {
+        if(ui.nextPage.attr("id")=="home")
+        geolocationInit()
+        
+        
+    });
+    
+    $('#registro').live("pagehide", function(event, ui) {
+        if(ui.nextPage.attr("id")=="home")
+        geolocationInit()
+        
+        
+    });
+    
+    var directionsDisplay = new google.maps.DirectionsRenderer();
+    var directionsService = new google.maps.DirectionsService();
+    var start;
+    var end;
+    function calcRoute() {
+        //Primero comprobamos que haya un estacionamiento activo
+        if(intervalUpdateGasto==0) {
+            $('#errorAlert_header').html('Error');
+            $('#errorAlert_html').html('Debes estar estacionado para poder calcular la ruta de vuelta al coche.');
+            emularClickPopup('#errorAlert');
+            return 0;
+        }
+        //Comprobamos el margen de error
+        if(parseInt(globales['accuracy'])>accuracy_min){
+            $('#errorAlert_header').html('Error');
+            $('#errorAlert_html').html('Tiene una cobertura GPS con poca se\00f1al. Es posible que la ruta no sea la m\xf3s correcta.');
+            emularClickPopup('#errorAlert');
+        }
+            
+            directionsDisplay.setMap(null);
+            
+            navigator.geolocation.getCurrentPosition(function(position){
+                
+                globales['lat']=position.coords.latitude;
+                globales['lng']=position.coords.longitude;
+            });
+            
+            
+            
+            start = new google.maps.LatLng(globales['lat'],globales['lng']);
+            end = marker.getPosition();
+            var request = {
+                origin:start,
+                destination:end,
+                travelMode: google.maps.TravelMode.WALKING
+            };
+            
+            
+            directionsDisplay.setMap(map);
+            directionsService.route(request, function(result, status) {
+                if (status == google.maps.DirectionsStatus.OK) {
+                    directionsDisplay.setDirections(result);
+                }else {
+                    alert("Problema")
+                }
+            });
+            
+            
+            
+            circle.setCenter(start);
+            
+            
+        
+    }
+    
+    var circle;
+    function onErrorGeo(error) {
+        alert('code: '    + error.code    + '\n' +
+          'message: ' + error.message + '\n');
+        alert2("No podemos determinar su ubicación. Debería revisar su configuración de posicionamiento GPS."); 
+    }
+    function initialize(lat,lng,acurracy) {
+        //alert("cargamos el mapa")
+        
+        //Si no hay cambios en la posicion no refrescamos el mapa
+        if(lat==globales['lat'] && lng==globales['lng']) return;
+        
+        /*globales['lat']="41.795232";
+        globales['lng']="3.042054";*/
+        globales['lat']=lat;
+        globales['lng']=lng;
+        globales['accuracy']=acurracy;
+        
+        var latlng = new google.maps.LatLng(lat, lng);
+        var myOptions = {
+            zoom: 18,
+            center: latlng,
+            panControl: false,
+            zoomControl: true,
+            scaleControl: true,
+            streetViewControl: false,
+            mapTypeControl: false,
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        map = new google.maps.Map(document.getElementById("map_canvas"),myOptions);
+        
+        marker = new google.maps.Marker({
+            position: latlng, 
+            map: map
+        });
+                
+       circle = new google.maps.Circle({
+                center: latlng,
+                radius: globales['accuracy'],
+                map: map, //your map,
+                fillColor: 'blue', //color,
+                fillOpacity: 0.2, //opacity from 0.0 to 1.0,
+                strokeColor: 'blue', //stroke color,
+                strokeOpacity: 0.5 //opacity from 0.0 to 1.0
+        });
+            
+        //Si el margen de error es mayor a 20
+        if(parseInt(globales['accuracy'])>accuracy_min){
+            if(navigator.notification){
+                navigator.notification.alert(
+                    'No es posible determinar una posici\xf3n precisa de su ubicaci\xf3n actual.',     // mensaje (message)
+                    alertDismissed,         // funci?n 'callback' (alertCallback)
+                    'Posici\xf3n no precisa',            // titulo (title)
+                    'Cerrar'                // nombre del bot?n (buttonName)
+                );
+            }else{
+                alert("No es posible determinar una precisa muy exacta de su ubicaci\xf3n actual.");
+            }
+            //set the zoom level to the circle's size
+            map.fitBounds(circle.getBounds());
+        }
+        
+        
+        intervalUpdateGasto=0;
+        
+        if($(".info").css("display")!="none") {
+            $("#layer-mapa").css("height", $(window).height() - 121 -  53  +"px");
+        }
+        else {
+            $("#layer-mapa").css("height", $(window).height() - 100  +"px");
+        }
+
+        checkRun();
+        if(fechaServidor!=null)
+            setDiferenciaHora();        
+            
+    }
+    
+    
+    // onError Callback receives a PositionError object
+    //
+    function onError(error) {
+        alert('code: '    + error.code    + '\n' + 'message: ' + error.message + '\n');
+    }
+</script>
+
+<script>
+    
+    var intervalUpdateGasto=0;
+    var intervalUpdateGastoServer;
+    
+
+
+    
+    function reloadEvents() {
+        console.log("cargamos reloadEvents");
+                
+        $("[data-json]").live("click",function() {
+            console.log("click en: ");
+            console.dir($(this))
+            
+            
+            
+            var padre=$(this).parents('[data-role="dialog"]');
+            if(padre.length>0) {
+                $.mobile.changePage("#home")
+            } 
+            
+            
+            var element=$(this)
+            var destino=$(element.attr("data-json-destino"));
+            var dataPost=eval(element.attr("data-json-data"))
+            var url='http://clients.3fera.com/aparca///json/'+element.attr("data-json")+'/';
+            
+            
+            
+            $.mobile.showPageLoadingMsg();
+            
+            console.log(dataPost);
+            console.log(url);
+            console.log(destino);
+            console.log(element);
+            
+            $.post(url, dataPost, function(data, textStatus) {          
+                //data contains the JSON object
+                //textStatus contains    the status: success, error, etc
+                console.dir(textStatus);
+                
+                console.log("Destino:" + data.destino);
+                console.log("html:" + data.html);
+                console.log("js:" + data.js);
+                
+                if(data.destino) {
+                    destino=$(data.destino);
+                }else{
+                    destino = null; 
+                }
+                //Si existe destino
+                if(destino!=null) {
+                    destino.fadeOut(500, function () {
+                        destino.html(data.html)
+                        if(data.html)   
+                            destino.fadeIn();
+                        if(data.js)
+                            eval(data.js);
+                        //alert("entra")
+                    });
+                }else {
+                    if(data.js)
+                        eval(data.js);
+                }
+                $.mobile.hidePageLoadingMsg();
+                
+            }, "json");
+            
+            
+        });
+   }
+   var time_segundos = 0;
+   
+   function formatoT(n){ 
+    totalDigits = 2;
+        n = n.toString(); 
+        var pd = ''; 
+        if (totalDigits > n.length) 
+        { 
+            for (i=0; i < (totalDigits-n.length); i++) 
+            { 
+                pd += '0'; 
+            } 
+        } 
+        return pd + n.toString(); 
+   } 
+   function alertDismissed() {
+           
+   }
+        
+   
+   var horario = Array();
+   horario[0]=Array();
+   horario[0][0]=0;
+   horario[0][1]=0;
+   horario[0][2]=0;
+   horario[0][3]=0;
+   
+   horario[1]=Array();
+   horario[1][0]=9;
+   horario[1][1]=14;
+   horario[1][2]=16;
+   horario[1][3]=20;
+   
+   horario[2]=Array();
+   horario[2][0]=9;
+   horario[2][1]=14;
+   horario[2][2]=16;
+   horario[2][3]=20;
+   
+   horario[3]=Array();
+   horario[3][0]=9;
+   horario[3][1]=14;
+   horario[3][2]=16;
+   horario[3][3]=20;
+   
+   horario[4]=Array();
+   horario[4][0]=9;
+   horario[4][1]=14;
+   horario[4][2]=16;
+   horario[4][3]=20;
+   
+   horario[5]=Array();
+   horario[5][0]=9;
+   horario[5][1]=14;
+   horario[5][2]=16;
+   horario[5][3]=20;
+   
+   horario[6]=Array();
+   horario[6][0]=9;
+   horario[6][1]=14;
+   horario[6][2]=0;
+   horario[6][3]=0;
+   
+   
+   function getDate(offset){
+      var now = new Date();
+      var hour = 60*60*1000;
+      var min = 60*1000;
+      return new Date(now.getTime() + (now.getTimezoneOffset() * min) + (offset * hour));
+    }
+
+   function checkHorario() {
+       var dateCET = getDate(2);
+       if(dateCET.getHours()>=horario[dateCET.getDay()][0] && dateCET.getHours()<horario[dateCET.getDay()][1]) 
+            return true;
+       
+       if(dateCET.getHours()>=horario[dateCET.getDay()][2] && dateCET.getHours()<horario[dateCET.getDay()][3]) 
+            return true;
+       
+       return false;
+   }
+   
+   var horaLimiteBool=false;
+   var fechaInicio;
+   var diferencia_time_segundos=0;
+   var time_vacio=0;
+   var pausa=false;
+   var limiteAlcanzado= false;
+   
+   function horaLimite(){
+       //alerta cerrada
+       if(navigator.notification)
+        navigator.notification.alert(
+            'Quedan 10 minutos para llegar al l\xedmite de tiempo',     // mensaje (message)
+            alertDismissed,         // funci?n 'callback' (alertCallback)
+            'L\xedmite de tiempo',            // titulo (title)
+            'Cerrar'                // nombre del bot?n (buttonName)
+        );
+       else
+        alert("Quedan 10 minutos para llegar al l\xedmite de tiempo");
+        
+        
+        horaLimiteBool=true;
+   }
+
+   function HtmlEncode(s)
+    {
+      var el = document.createElement("div");
+      el.innerText = el.textContent = s;
+      s = el.innerHTML;
+      return s;
+    }
+
+   function alert2(texto) {
+       //alerta cerrada
+       if(navigator.notification)
+        navigator.notification.alert(
+            HtmlEncode(texto),     // mensaje (message)
+            alertDismissed,         // funci?n 'callback' (alertCallback)
+            'L\xedmite de tiempo',            // titulo (title)
+            'Cerrar'                // nombre del bot?n (buttonName)
+        );
+       else
+        alert(HtmlEncode(texto));
+   }
+
+    function limiteAlcanzado(){
+       //alerta cerrada
+       if(navigator.notification)
+        navigator.notification.alert(
+            'Quedan 10 minutos para llegar al l\xedmite de tiempo',     // mensaje (message)
+            alertDismissed,         // funci?n 'callback' (alertCallback)
+            'L\xedmite de tiempo',            // titulo (title)
+            'Cerrar'                // nombre del bot?n (buttonName)
+        );
+       else
+        alert("Quedan 10 minutos para llegar al l\xedmite de tiempo");
+        
+        
+        horaLimiteBool=true;
+   }
+    
+   function diferenciaFechas (CadenaFecha,flag) {  
+         
+        //Fix para safari
+       eval("var miFecha1 = new Date( "+ CadenaFecha.replaceAll("-",",").replaceAll(":",",").replaceAll(" ",",") +" )" ) 
+       //FIX para cambiar el mierda de mes
+       miFecha1.setMonth(miFecha1.getMonth()-1);
+       
+       var miFecha2 = getDate(2); 
+      
+    
+       var diferencia = miFecha2.getTime() - miFecha1.getTime() 
+       var segundos = Math.floor(diferencia / 1000)  
+       
+       if(diferencia<0) { //Fix para safari
+           miFecha1.setMonth(miFecha1.getMonth() - 1);
+           var diferencia = miFecha2.getTime() - miFecha1.getTime() 
+           var segundos = Math.floor(diferencia / 1000)  
+           
+       }
+       
+       if(flag)
+        return segundos-diferencia_time_segundos;
+       else
+        return segundos-diferencia_time_segundos-time_vacio;
+       
+    }  
+   
+   String.prototype.replaceAll = function(
+        strTarget, // The substring you want to replace
+        strSubString // The string you want to replace in.
+        ){
+        
+            var strText = this;
+            var intIndexOfMatch = strText.indexOf( strTarget );
+             
+            // Keep looping while an instance of the target string
+            // still exists in the string.
+            while (intIndexOfMatch != -1){
+                // Relace out the current instance.
+                strText = strText.replace( strTarget, strSubString )
+                 
+                // Get the index of any next matching substring.
+                intIndexOfMatch = strText.indexOf( strTarget );
+            }
+             
+            // Return the updated string with ALL the target strings
+            // replaced out with the new substring.
+            return( strText );
+    }
+   
+   function marcarPeriodoInactivo() {
+       if(pausa) {
+            $("#periodoInactivo").removeClass("oculto");
+            $(".info div").css('opacity','0.5');
+       }
+       else {
+            $("#periodoInactivo").addClass("oculto");
+           $(".info div").css('opacity','1')
+       } 
+            
+   }
+   
+   function updateCounter(precioHora, limite){
+   
+        //Hemos llegado al límite?
+        if( time_segundos>=limite*60 ) {
+            if(!limiteAlcanzado) {
+                limiteAlcanzado=true;
+                alert2("Ha alcanzado el l\xedmite de tiempo en su estacionamiento.");
+                printTime(precioHora, limite*60, limite);
+            }
+            limiteAlcanzado=true;
+            return 0;
+
+        }
+
+   
+        if(!checkHorario()) {
+            
+            marcarPeriodoInactivo();
+            if(!pausa) {
+                printTime(precioHora, time_segundos, limite);
+            }
+            pausa=true;
+            return 0;
+        }
+        if(pausa) {
+            checkRun();
+            pausa=false;
+            marcarPeriodoInactivo();
+            limiteAlcanzado=false;
+        }
+        
+                
+        precioMin = (precioHora/60);
+        
+        time_segundos=diferenciaFechas(fechaInicio);
+        
+        printTime(precioHora, time_segundos, limite);
+   }
+   
+   function printTime(precioHora, tiempo, limite) {
+       
+        precioMin = (precioHora/60);
+        precioSeg = (precioMin/60);
+
+        if((tiempo)>=((limite*60)-600) && !horaLimiteBool ) {
+            if(!limiteAlcanzado)
+                horaLimite();
+            precioT = limite*precioMin;
+        } else {
+            fix = tiempo;
+            precioT = precioSeg * (Math.floor(fix));
+        }
+        
+        var precioTT = precioT.toFixed(2);
+        
+        horas = Math.floor(tiempo/3600);
+        var minutos = Math.floor(tiempo/60) - horas*60;
+        var segundos = Math.floor(tiempo%60);
+        var tiempo2 = formatoT(horas) + ":" + formatoT(minutos) + ":" + formatoT(segundos);
+        
+        
+        if( tiempo>=limite*60 ) {
+            tiempo=limite*60;
+            horas = Math.floor(tiempo/3600);
+            var minutos = Math.floor(tiempo/60) - horas*60;
+            var segundos = Math.floor(tiempo%60);
+            var tiempo2 = formatoT(horas) + ":" + formatoT(minutos) + ":" + formatoT(segundos);
+            
+            fix = tiempo;
+            precioT = precioSeg * (Math.floor(fix));
+            precioTT = precioT.toFixed(2);
+        }
+
+        
+        var html = precioTT + "&euro;<span>" + tiempo2 + "</span>";
+        
+        $('#tarifaUpdate').html(html);
+        
+   }
+   
+   function setDiferenciaHora() {
+       if(fechaServidor!=null && diferencia_time_segundos==0)
+            diferencia_time_segundos=diferenciaFechas(fechaServidor,true);
+      
+   }
+   
+   function startCounter(precioHora, limite, tiempo, fechaInicio1, fechaServidor1, time_vacio1) {
+        time_segundos = tiempo;
+        fechaInicio=fechaInicio1;
+        fechaServidor=fechaServidor1;
+        time_vacio=time_vacio1;
+        diferencia_time_segundos=0;
+        
+        setDiferenciaHora();
+        
+        updateCounter(precioHora, limite);
+        clearInterval(intervalUpdateGasto);
+        intervalUpdateGasto=setInterval('updateCounter(' + precioHora + "," + limite + ')', 1000);
+        
+        //intervalUpdateGastoServer=setInterval('checkRun()', 60000);
+   }
+       
+   function getCoordsJSON() {
+        return "lat="+ globales['lat'] +"&lng="+globales['lng']+"&ac="+ globales['accuracy'];   
+   }
+   
+   function changeTarifa(tipoId){
+       tarifaId = tipoId;
+   }
+   
+   var tarifaId = 0;
+   
+   function changeMatricula(matriculaId){
+       matriculaId = matriculaId;
+   }
+   
+   var matriculaId = 0;
+   
+   function getCoordsJSONAndTarifa() {
+       return "lat=" + globales['lat'] + "&lng=" + globales['lng'] + "&ac=" + globales['accuracy'] + "&tipoId=" + globales['tipoId'] + "&matriculaId=" + globales['matriculaId'];
+   }
+        
+   function getPerfilJSON(){
+        var fields =  
+            "username=" + $("#usernamePerfil").val() 
+            + "&email=" + $("#emailPerfil").val() 
+            + "&oldPassword=" + $("#passwordPerfil").val() 
+            + "&password=" + $("#newPasswordPerfil").val() 
+            + "&password2=" + $("#newPassword2Perfil").val();
+        return fields;
+    }
+    
+    function getVehiculoJSON(vehiculoId){
+        return "vehiculoId=" + vehiculoId;
+    }
+    
+    function getRemoveVehiculoJSON(vehiculoId){
+        return "vehiculoId=" + vehiculoId;
+    }
+    
+    function getTicketActualJSON(){
+        t = time_segundos + 60;
+        return "tiempoTotal=" + Math.floor(t/60);
+    }
+    
+    function getTicketJSON(estacionamientoId){
+        return "estacionamientoId=" + estacionamientoId;
+    }
+    
+    function getAddVehiculoJSON(){
+        return "matricula=" + $("#matricula").val();
+    }
+    
+    function getRegistroJSON(){
+        return "username=" + $("#regUsuario").val() + "&password=" + $("#regPassword").val() + "&email=" + $("#regEmail").val() + "&matricula=" + $("#regMatricula").val() + 
+        "&tarjeta=" + $("#regTarjeta").val() + "&tarjetaMes=" + $("#regMes").val() + "&tarjetaAno=" + $("#regAno").val();
+    }
+    
+    function getLoginJSON(){
+        return "username=" + $("#username").val() + "&password=" + $("#password").val();
+    }
+    
+    function emularClickPopup(element) {
+        $("#emulClick").attr("href",element);
+        $("#emulClick").click();
+    }
+    
+</script>
+</head>
+
+<body>
+
+    <!-- Welcome / Login -->
+    <div data-role="page" data-transition="none"  id="login">   
+        <div id="logginDiv" data-role="popup" data-overlay-theme="a" data-theme="a" class="ui-corner-all"style="display:none">
+            <div style="padding:10px 20px;">
+                <h3>Acceso</h3>
+                <label for="un" class="ui-hidden-accessible">Usuario:</label>
+                <input type="text" name="username" id="username" value="" placeholder="usuario" data-theme="a" />
+                
+                <label for="pw" class="ui-hidden-accessible">Password:</label>
+                <input type="password" name="password" id="password" value="" placeholder="password" data-theme="a" />
+                
+                <button type="submit" data-theme="b" data-json="login" data-json-data="getLoginJSON()" class="ui-btn boton_grande">Login</button>
+                
+                <a href="#registro" data-role="button" data-theme="b" class="boton_grande"  >Regístrate</a>
+            </div>
+        </div>
+        
+        <script>
+            $('#login').live('pageshow', function () {
+                //Check session status
+                $.post("http://clients.3fera.com/aparca//json/sessionStatus/", "1", function(data, textStatus) {
+                    if(data.js)
+                        eval(data.js);
+                }, "json");
+            }); 
+             $(function() {
+                $('div[data-role="dialog"]').live('pagebeforeshow', function(e, ui) {
+                    ui.prevPage.addClass("ui-dialog-background ");
+                });
+            
+                $('div[data-role="dialog"]').live('pagehide', function(e, ui) {
+                    $(".ui-dialog-background ").removeClass("ui-dialog-background ");
+                });
+            });
+            
+        </script>
+    </div>
+    
+    <!-- Registro -->
+    <div data-role="page" data-transition="none"  id="registro" class="ui-corner-all">  
+        <div data-role="header" data-theme="a" data-position="inline">
+            <a href="#login" data-icon="delete">Volver</a>
+            <h1>Registro</h1>
+        </div>
+        <div data-role="content" data-theme="c">
+            <div class="ui-body ui-body-d">
+                
+                <div data-role="fieldcontain" class="ui-field-contain ui-body ui-br">
+                    <label for="name-a" class="ui-input-text">Usuario:</label>
+                    <input type="text" id="regUsuario" value="" placeholder="Usuario" data-theme="c" class="ui-input-text ui-body-a ui-corner-all ui-shadow-inset">
+                </div>
+                <div data-role="fieldcontain" class="ui-field-contain ui-body ui-br">
+                    <label for="name-a" class="ui-input-text">Password:</label>
+                    <input type="password" id="regPassword" value="" placeholder="Password" data-theme="c" class="ui-input-text ui-body-a ui-corner-all ui-shadow-inset">
+                </div>
+                <div data-role="fieldcontain" class="ui-field-contain ui-body ui-br">
+                    <label for="name-a" class="ui-input-text">Email:</label>
+                    <input type="text" id="regEmail" value="" placeholder="Email" data-theme="c" class="ui-input-text ui-body-a ui-corner-all ui-shadow-inset">
+                </div>
+                <div data-role="fieldcontain" class="ui-field-contain ui-body ui-br">
+                    <label for="name-a" class="ui-input-text">Matrícula:</label>
+                    <input type="text" id="regMatricula" value="" placeholder="Matrícula" data-theme="c" class="ui-input-text ui-body-a ui-corner-all ui-shadow-inset">
+                </div>
+
+                <button type="submit" data-theme="b" data-json="registrar" data-json-data="getRegistroJSON()"  class="boton_grande"  class="ui-btn">Registrar</button>
+            </div>
+        </div>     
+    </div>
+    
+    <!-- TPV -->
+    <div data-role="page" data-transition="none"  id="tpv" class="ui-corner-all">   
+        <div data-role="header" data-theme="a" data-position="inline">
+            <h1>Tarjeta de crédito</h1>
+        </div>
+        <div data-role="content" data-theme="c">
+            <div class="ui-body ui-body-d">
+                A continuación le emitiremos un cargo de 0.01? para verificar su tarjeta de crédito y asociarla con el servicio.<br>
+                <i>Apparca no almacenará ningún dato de tu tarjeta de credito.</i>
+                <div id="formTPV"></div>
+            </div>
+        </div>
+        <script>
+            $('#tpv').live('pageshow', function () {
+                $.post("http://clients.3fera.com/aparca//json/genToken", "1", function(data, textStatus) {
+                    console.dir(data);  
+                    if(data.js)
+                        eval(data.js);
+                }, "json");
+            }); 
+        </script>
+    </div>
+    
+    <!-- TPV OK -->
+    <div data-role="page" data-transition="none"  id="tpvOk" class="ui-corner-all"> 
+        <div data-role="header" data-theme="a" data-position="inline">
+            <h1>Tarjeta asociada</h1>
+        </div>
+        <div data-role="content" data-theme="c">
+            <div class="ui-body ui-body-d">
+                La tarjeta de crédito ha sido asociada a tu cuenta satisfactoriamente. <br>
+                ¡Ya puedes empezar a usar Apparca!
+                <a href="#home" data-role="button" data-theme="b" class="boton_grande">Aceptar</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- TPV BAD -->
+    <div data-role="page" data-transition="none"  id="tpvBad" class="ui-corner-all">    
+        <div data-role="header" data-theme="a" data-position="inline">
+            <h1>Error al asociar la tarjeta</h1>
+        </div>
+        <div data-role="content" data-theme="c">
+            <div class="ui-body ui-body-d">
+                Ha habido un problema al intentar asociar esta tarjeta de crédito.<br>
+                Pulsa en volver para introducir de nuevo los datos.
+                <a href="#tpv" data-role="button" data-theme="b" class="boton_grande">Volver</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tarjeta -->
+    <div data-role="page" data-transition="none"  id="tarjeta" class="ui-corner-all">   
+        <div data-role="header" data-theme="a" data-position="inline">
+            <h1>Tarjeta de crédito</h1>
+        </div>
+        <div data-role="content" data-theme="c">
+            <div class="ui-body ui-body-d">
+                <div data-role="fieldcontain" class="ui-field-contain ui-body ui-br">
+                    <div data-role="fieldcontain" class="ui-field-contain ui-body ui-br">
+                        <label for="name-a" class="ui-input-text">Nº tarjeta de crédito:</label>
+                        <input type="text" id="regTarjeta" value="" placeholder="Nº tarjeta de crédito" data-theme="c" class="ui-input-text ui-body-a ui-corner-all ui-shadow-inset">
+                    </div>
+                    <fieldset data-role="controlgroup">
+                        <legend>Fecha caducidad</legend>
+                        <label for="regMes">Mes</label>
+                        <select name="regMes" id="regMes">
+                            <option value="01">01</option>
+                            <option value="02">02</option>
+                            <option value="03">03</option>
+                            <option value="04">04</option>
+                            <option value="05">05</option>
+                            <option value="06">06</option>
+                            <option value="07">07</option>
+                            <option value="08">08</option>
+                            <option value="09">09</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
+                       </select>
+                       <label for="regAno">Año</label>
+                       <select name="regAno" id="regAno">
+                            <option value="2012">2012</option>
+                            <option value="2013">2013</option>
+                            <option value="2014">2014</option>
+                            <option value="2015">2015</option>
+                            <option value="2016">2016</option>
+                            <option value="2017">2017</option>
+                            <option value="2018">2018</option>
+                            <option value="2019">2019</option>
+                            <option value="2020">2020</option>
+                            <option value="2021">2021</option>
+                            <option value="2022">2022</option>
+                       </select>
+                    </fieldset>
+                </div>
+                <button type="submit" data-theme="b" data-json="registrarTarjeta" data-json-data="getTarjetaJSON()"  class="boton_grande"  class="ui-btn">Continuar</button>
+            </div>
+        </div>     
+    </div>
+
+    <!-- Home -->
+    <div data-role="page" data-transition="none"  id="home" style="height: 100%;" class="details-page" data-prefetch>
+        <div data-role="content" class="sin-padding" style="height: 90%;" id="layer-mapa" data-theme="a">
+            <div id="map_content">
+                <div id="map_canvas" style="height: 100%;"></div>
+            </div>
+        </div>
+        <div id="periodoInactivo" class="oculto">Periodo gratuito</div>
+        <div class="info" id="info"></div>
+        <div class="botones" id="botonera" data-theme="a">
+            <a href="" onclick="calcRoute()" class="btn-euros"></a>
+            <a href="" data-json="clickSearchZonas" data-json-data="getCoordsJSON()" data-json-destino="#info" class="btn-run"></a>
+            <a href="#confirmarStop" class="btn-stop" data-rel="dialog"></a>
+            <a href="#clickTools" class="btn-tools" data-rel="page" data-shadow="true"  data-transition="pop" data-corners="true"></a>
+        </div> 
+        <script>
+            var deviceReady = 0;
+            $('#home').live('pageshow', function () {
+                //Check session status
+                $.post("http://clients.3fera.com/aparca//json/checkSession/", "1", function(data, textStatus) {
+                    if(data.js)
+                        eval(data.js);
+                }, "json");
+                if(!deviceReady){
+                    onDeviceReady();
+                    deviceReady = 1;
+                }
+            }); 
+        </script>
+    </div>
+
+    <!-- Seleccionar zonas -->
+    <div data-role="dialog" data-transition="none" id="selectZonas">
+        <div data-role="header" data-theme="a"><h1>SELECCIONAR ZONA</h1></div>
+        <div data-role="content" data-theme="c">
+            <div class="content">
+            </div>
+            <br>
+            <table width="100%">
+                <tr>
+                    <td>
+                        <a href="#" data-role="button" data-theme="a" class="boton_grande"   data-rel="back">Volver</a>
+                    </td>
+                    <td>
+                        <a href="#" data-role="button" data-theme="b" class="boton_grande" data-json="clickRun" data-json-data="getCoordsJSONAndTarifa()">Aceptar</a>
+                    </td>
+                </tr>
+            </table>        
+            </div>     
+    </div>
+       
+    <!-- Sin zonas -->
+    <div data-role="dialog" data-transition="none"  id="sinZonas" class="ui-corner-all">
+        <div data-role="header" data-theme="a"><h1>Sin zonas</h1></div>
+        <div data-role="content" data-theme="c">
+            No hemos encontrado ninguna zona cerca de su posición. Por favor, revise su configuración GPS si es incorrecto.
+            <div id="zonasBotones">
+                <a href="#" data-role="button" data-theme="b" class="boton_grande"  data-rel="back">Aceptar</a>
+            </div>
+        </div>     
+    </div>
+    
+    <!-- ConfirmarRun -->
+    <div data-role="dialog" data-transition="none"  id="confirmarRun" class="ui-corner-all">
+        <div data-role="header" data-theme="a"><h1>Confirmar</h1></div>
+        <div data-role="content" data-theme="c">
+            <div id="confirmarRun_html"></div>
+            <table width="100%">
+                <tr>
+                    <td>
+                        <a href="#" data-role="button" data-theme="a" class="boton_grande"   data-rel="back">Volver</a>
+                    </td>
+                    <td>
+                        <a href="#" data-json="clickRun" data-json-data="getCoordsJSONAndTarifa()" data-role="button" class="boton_grande"  data-theme="e">Aceptar</a>
+                    </td>
+                </tr>
+            </table>        
+        </div>     
+    </div>
+    
+    <!-- ConfirmarStop -->
+    <div data-role="dialog" data-transition="none"  id="confirmarStop" class="ui-corner-all">
+        <div data-role="header" data-theme="a"><h1>Finalizar Aparcamiento</h1></div>
+        <div data-role="content" data-theme="c">
+            <div class="content">
+            ¿Desea finalizar su aparcamiento?
+            </div>
+            <table width="100%">
+                <tr>
+                    <td>
+                        <a href="#" data-role="button" data-theme="a" class="boton_grande"  data-rel="back">No</a>
+                    </td>
+                    <td>
+                        <a href="#" data-role="button" data-theme="b" class="boton_grande"  data-json="clickStop" data-json-data="getCoordsJSONAndTarifa()">Si</a>
+                    </td>
+                </tr>
+            </table>
+
+        </div>     
+    </div>
+    
+    <!-- Pago -->
+    <div data-role="page" data-transition="none" id="pago" class="ui-corner-all">
+        
+    </div>
+    
+    <!-- Pago OK -->
+    <div data-role="page" data-transition="none" id="pagoOk" class="ui-corner-all"> 
+        <script>
+            $('#pagoOk').live('pageshow', function () {
+                $.post("http://clients.3fera.com/aparca//json/pagoOkTiket", "1", function(data, textStatus) {
+                    console.dir(data);  
+                    if(data.js)
+                        eval(data.js);
+                }, "json");
+            }); 
+        </script>
+    </div>
+    
+    <!-- showTiketStop -->
+    <div data-role="dialog" data-transition="none"  id="showTiketStop" class="ui-corner-all">
+        <div data-role="header" data-theme="a"><h1>Ticket</h1></div>
+        <div data-role="content" data-theme="c">
+            <div class="content">
+            ¿Desea finalizar su aparcamiento?
+            </div>
+            <table width="100%">
+                <tr>
+                    <td>
+                        <a href="#" data-role="button" data-theme="a" class="boton_grande"  data-rel="exit" onClick="navigator.app.exitApp()">Salir</a>
+                    </td>
+                    <td>
+                        <a href="#" data-role="button" data-theme="b" class="boton_grande"  data-rel="back">Volver</a>
+                    </td>
+                </tr>
+            </table>
+        </div>     
+    </div>
+    
+    <!-- showTiket -->
+    <div data-role="dialog" data-transition="none"  style="z-index: 9999;position: relative;" id="showTiket" class="ui-corner-all">
+        <div data-role="header" data-theme="a"><h1>Ticket</h1></div>
+        <div data-role="content" data-theme="c">
+            <div class="content"></div>
+            <table width="100%">
+                <tr>
+                    <td>
+                        <a href="#" data-role="button" data-theme="a" data-rel="back"  class="boton_grande">Cerrar</a>
+                    </td>
+                </tr>
+            </table>
+        </div>     
+    </div>
+    
+    <!-- showVehiculo -->
+    <div data-role="dialog" data-transition="none"  style="z-index: 9999;position: relative;" id="showVehiculo" class="ui-corner-all">
+        <div data-role="header" data-theme="a"><h1>Vehículo</h1></div>
+        <div data-role="content" data-theme="c">
+            <div class="content"></div>
+            <table width="100%">
+                <tr>
+                    <td>
+                        <a href="#" data-role="button" data-theme="a" data-json="removeVehiculo" class="boton_grande" data-rel="exit" id="eliminarVehiculo">Eliminar</a>
+                    </td>
+                    <td>
+                        <a href="#" data-role="button" data-theme="b" data-rel="back" class="boton_grande">Cerrar</a>
+                    </td>
+                </tr>
+            </table>
+        </div>     
+    </div>
+    
+    <!-- Herramientas -->
+    <div data-role="page" data-transition="none"  id="clickTools" class="ui-corner-all">    
+        <div data-role="header" data-theme="a" data-position="inline">
+            <a href="#home" data-icon="delete">Volver</a>
+            <h1>Herramientas</h1>
+        </div>
+        <div data-role="content" data-theme="c">
+            <div class="content-primary">   
+                <ul data-role="listview">
+                    <li>
+                        <a href="#perfil" class="ui-link-inherit">
+                            <h3>Usuario</h3>
+                            <p>Apartado desde el que podrás cambiar tus datos de acceso a la app.</p>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#gestionVehiculos" class="ui-link-inherit">
+                            <h3>Mis matriculas</h3>
+                            <p>Para cambiar/borrar/añadir matrículas.</p>
+                        </a>
+                    
+                    </li>
+                    <li>
+                        <a href="#gestionPagos" class="ui-link-inherit">
+                            <h3>Mis tickets</h3>
+                            <p>Desde este aparado podras gestionar las formas de pago.</p>
+                        </a>
+                    </li>
+                    <!--<li>
+                        <a href="#gestionPagos" class="ui-link-inherit">
+                            <h3>Normativa de aparcamiento</h3>
+                            <p>Información de tarifas, zonas, períodos de pago, tiempos máximos...</p>
+                        </a>
+                    </li>-->
+                    <li>
+                        <a href="#ayuda" class="ui-link-inherit">
+                            <h3>Ayuda</h3>
+                            <p>Toda la ayuda y consejos que puedas necesitar los encontraras en este apartado.</p>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onClick="navigator.app.exitApp()" data-json="salir" class="ui-link-inherit">
+                            <h3>Salir</h3>
+                            <p>Cierra la sesión actual</p>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>     
+    </div>     
+    
+    <!-- Gestion Vehiculos -->
+    <div data-role="page" data-transition="none" id="gestionVehiculos" class="ui-corner-all">   
+        <div data-role="header" data-theme="a" data-position="inline">
+            <a href="#clickTools" data-icon="delete">Volver</a>
+            <h1>Gestión de vehículos</h1>
+        </div>
+        <div data-role="content" data-theme="c">
+            <div class="content-primary">   
+                
+                <div>
+                    Matricula
+                    <input type="text" name="matricula" id="matricula">
+                    <button type="submit" data-json="addVehiculo" data-json-data="getAddVehiculoJSON()" class="ui-btn">Añadir</button>
+                </div>
+                <br>
+                <ul data-role="listview" id="listaVehiculos">
+                </ul>
+            </div>
+        </div>
+        <script>
+            $('#gestionVehiculos').live('pageshow', function () {
+                //Loading
+                $.mobile.showPageLoadingMsg();
+                //Get vehicles
+                $.post("http://clients.3fera.com/aparca//json/getVehiculos/", "1", function(data, textStatus) {
+                    if(data.js)
+                        eval(data.js);
+                    $('#listaVehiculos').listview('refresh');
+                }, "json");
+            }); 
+        </script>
+    </div>
+    
+    <!-- Gestion Pagos -->
+    <div data-role="page" data-transition="none"  id="gestionPagos" class="ui-corner-all">  
+        <div data-role="header" data-theme="a" data-position="inline">
+            <a href="#clickTools" data-icon="delete">Volver</a>
+            <h1>Gestión de pagos</h1>
+        </div>
+        <div data-role="content" data-theme="c">
+            <div class="content-primary">   
+                <ul data-role="listview" id="listaPagos">
+                    
+                </ul>
+            </div>
+        </div>
+        <script>
+            $('#gestionPagos').live('pageshow', function () {
+                //Loading
+                $.mobile.showPageLoadingMsg();
+                //Get vehicles
+                $.post("http://clients.3fera.com/aparca//json/getPagos/", "1", function(data, textStatus) {
+                    if(data.js)
+                        eval(data.js);
+                    $('#listaPagos').listview('refresh') 
+                }, "json");
+            }); 
+        </script>
+    </div>
+    
+    <!-- Editar Perfil -->
+    <div data-role="page" data-transition="none"  id="perfil" class="ui-corner-all">    
+        <div data-role="header" data-theme="a" data-position="inline">
+            <a href="#clickTools" data-icon="delete">Volver</a>
+            <h1>Perfil</h1>
+        </div>
+        <div data-role="content" data-theme="c">
+            <div class="content-primary">   
+                Usuario
+                <input type="text" name="username" id="usernamePerfil">
+                Email
+                <input type="text" name="email" id="emailPerfil">
+                Password actual
+                <input type="password" name="password" id="passwordPerfil">
+                Nuevo password
+                <input type="password" name="newPassword" id="newPasswordPerfil">
+                Repite el nuevo password
+                <input type="password" name="newPassword2" id="newPassword2Perfil">
+                <button type="submit" data-json="guardarPerfil" data-json-data="getPerfilJSON()" class="ui-btn">Guardar</button>
+            </div>
+        </div>
+        <script>
+            $('#perfil').live('pageshow', function () {
+                //Loading
+                $.mobile.showPageLoadingMsg();
+                //Get vehicles
+                $.post("http://clients.3fera.com/aparca//json/getPerfil/", "1", function(data, textStatus) {
+                    if(data.js)
+                        eval(data.js);
+                }, "json");
+            }); 
+        </script>
+    </div>
+    
+    <!-- Ayuda -->
+    <div data-role="page" data-transition="none"  id="ayuda" class="ui-corner-all"> 
+        <div data-role="header" data-theme="a" data-position="inline">
+            <a href="#clickTools" data-icon="delete">Volver</a>
+            <h1>Ayuda</h1>
+        </div>
+        <div data-role="content" data-theme="c">
+            <div class="content-primary">
+                <div data-role="collapsible-set">
+                    <div data-role="collapsible" data-theme="c" data-content-theme="d">
+                        <h3>¿Hay que registrarse para utilizar el servicio? </h3>
+                        <p>Sí, al descargar la aplicación el sistema te propone el registro de tus datos personales.  </p>
+                    </div>
+                    <div data-role="collapsible" data-theme="c" data-content-theme="d">
+                        <h3>¿Están seguros mis datos de la tarjeta de crédito y de mi cuenta bancaria en el sistema? </h3>
+                        <p>Si, ÁPPARCA cumple los requisitos de la ley de protección de datos y aplica los métodos más recientes para proteger los datos personales de nuestros clientes. No guardamos los datos de tarjetas de crédito/débito en nuestra base de datos. Los datos de la tarjeta se introduce directamente en la aplicación de La Caixa sin necesidad de grabarlos en nuestro sistema. 
+</p>
+                    </div>
+                    <div data-role="collapsible" data-theme="c" data-content-theme="d">
+                        <h3>¿Como sabe el agente que estoy pagando mi aparcamiento? </h3>
+                        <p>El control se realiza verificando la existencia de una operación de estacionamiento en curso, registrada en la BBDD de operaciones del sistema para la matrícula del coche estacionado que se comprueba. 
+</p>
+                    </div>
+                    <div data-role="collapsible" data-theme="c" data-content-theme="d">
+                        <h3>¿Necesito un distintivo para indicar al controlador que estoy utilizando el servicio de pago APPARCA? </h3>
+                        <p>No, salvo que algún ayuntamiento lo requiriera, la matricula del vehículo es suficiente. </p>
+                    </div>
+                    <div data-role="collapsible" data-theme="c" data-content-theme="d">
+                        <h3>¿Puedo registrar más de un coche? </h3>
+                        <p>Si, en APPARCA se pueden asociar varias matrículas de coches a un solo usuario. </p>
+                    </div>
+                    <div data-role="collapsible" data-theme="c" data-content-theme="d">
+                        <h3>¿Recibo notificaciones del sistema APPARCA? </h3>
+                        <p>Sí:
+                            <ul>
+                                <li>10 minutos antes de alcanzar el tiempo máximo autorizado.</li>
+                                <li>En caso de alguna incidencia con su tarjeta de crédito/débito.</li>
+                                <li>Al finalizar una operación de estacionamiento se visualiza un ticket digital con los datos del mismo. </li>
+                            </ul>
+                            
+                        </p>
+                    </div>
+                    <div data-role="collapsible" data-theme="c" data-content-theme="d">
+                        <h3>¿Que hago si cambio el coche? </h3>
+                        <p>Cambie la matrícula mediante el botón de Ajustes ? Datos personales.</p>
+                    </div>
+                    <div data-role="collapsible" data-theme="c" data-content-theme="d">
+                        <h3>¿Puedo pagar la multa con el sistema APPARCA? </h3>
+                        <p>No.</p>
+                    </div>
+                    <div data-role="collapsible" data-theme="c" data-content-theme="d">
+                        <h3>¿Apparca puede ser utilizado por smarphones de operadoras extranjeras? </h3>
+                        <p>Sí, con cualquier operador, con previo registro de los datos del usuario
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ERROR -->
+    <div data-role="page" data-transition="none"  id="errorAlert" class="ui-corner-all">
+        <div data-role="header" data-theme="a">
+            <h1 id="errorAlert_header">dialogo con colores configurados</h1>
+        </div>
+        <div data-role="content" data-theme="c">
+            <div class="content" id="errorAlert_html"></div>
+            <table width="100%">
+                <tr>
+                    <td>
+                        <a href="#" data-role="button" data-theme="b" data-rel="back" class="boton_grande">Cerrar</a>
+                    </td>
+                </tr>
+            </table>
+
+        </div>     
+        
+    </div>
+
+    
+    
+    <a data-rel="dialog" id="emulClick" href="#" ></a>      
+    <a href="" data-json="updateGasto" id="updateGasto" style="display:none"></a>
+
+</body>
+
+</html>
